@@ -45,8 +45,8 @@ import org.springframework.web.filter.GenericFilterBean;
  * 
  * Used to support Oauth2 authentication and the service is loaded only when "oauth" profile is active.
  */
-@Service(value = "tenantIdentifierProcessingFilter")
-@Profile("oauth")
+//@Service(value = "tenantIdentifierProcessingFilter")
+//@Profile("oauth")
 public class TenantAwareTenantIdentifierFilter extends GenericFilterBean {
 
     private static boolean firstRequestProcessed = false;
@@ -84,13 +84,13 @@ public class TenantAwareTenantIdentifierFilter extends GenericFilterBean {
 
             // allows for Cross-Origin
             // Requests (CORs) to be performed against the platform API.
-            response.setHeader("Access-Control-Allow-Origin", "*");
-            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-            final String reqHead = request.getHeader("Access-Control-Request-Headers");
-
-            if (null != reqHead && !reqHead.equals(null)) {
-                response.setHeader("Access-Control-Allow-Headers", reqHead);
-            }
+//            response.setHeader("Access-Control-Allow-Origin", "*");
+//            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+//            final String reqHead = request.getHeader("Access-Control-Request-Headers");
+//
+//            if (null != reqHead && !reqHead.equals(null)) {
+//                response.setHeader("Access-Control-Allow-Headers", reqHead);
+//            }
 
             if (!"OPTIONS".equalsIgnoreCase(request.getMethod())) {
 
@@ -104,6 +104,20 @@ public class TenantAwareTenantIdentifierFilter extends GenericFilterBean {
                                 + "' or add the parameter 'tenantIdentifier' to query string of request URL."); }
 
                 String pathInfo = request.getRequestURI();
+                boolean isSelfServiceRequest = false;
+                if(pathInfo != null && pathInfo.contains("selfservice")){
+                	isSelfServiceRequest = true;
+                }
+                ThreadLocalContextUtil.setSelfServiceRequest(isSelfServiceRequest);
+                
+//                boolean isAuthRequest = false;
+//                if(pathInfo != null && (pathInfo.contains("token") 
+//                		|| pathInfo.contains("userdetails")
+//                		|| pathInfo.contains("authentication"))){
+//                	isAuthRequest = true;
+//                }
+//                ThreadLocalContextUtil.setAuthRequest(isAuthRequest);
+                
                 boolean isReportRequest = false;
                 if (pathInfo != null && pathInfo.contains("report")) {
                     isReportRequest = true;
@@ -142,6 +156,7 @@ public class TenantAwareTenantIdentifierFilter extends GenericFilterBean {
             task.stop();
             final PlatformRequestLog log = PlatformRequestLog.from(task, request);
             logger.info(this.toApiJsonSerializer.serialize(log));
+            System.out.println("=================================================================");
         }
 
     }

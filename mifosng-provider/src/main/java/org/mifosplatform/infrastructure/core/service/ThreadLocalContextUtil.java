@@ -21,6 +21,33 @@ public class ThreadLocalContextUtil {
     
     private static final ThreadLocal<String> authTokenContext = new ThreadLocal<>();
     
+    private static final ThreadLocal<Boolean> isSelfServiceRequest = new ThreadLocal<>();
+    
+    private static final ThreadLocal<Boolean> isAuthRequest = new ThreadLocal<>();
+    
+    public static void setAuthRequest(boolean isAuth){
+    	isAuthRequest.set(Boolean.valueOf(isAuth));
+    }
+    
+    public static boolean isAuthRequest(){
+    	if(null != isAuthRequest.get()){
+    		return isAuthRequest.get().booleanValue();
+    	}
+
+    	return false;
+    }
+
+    public static void setSelfServiceRequest(boolean isSelfService){
+    	isSelfServiceRequest.set(Boolean.valueOf(isSelfService));
+    }
+    
+    public static boolean isSelfServiceRequest(){
+    	if(null != isSelfServiceRequest.get()){
+    		return isSelfServiceRequest.get().booleanValue();
+    	}
+
+    	return false;
+    }
     public static void setTenant(final MifosPlatformTenant tenant) {
         Assert.notNull(tenant, "tenant cannot be null");
         tenantcontext.set(tenant);

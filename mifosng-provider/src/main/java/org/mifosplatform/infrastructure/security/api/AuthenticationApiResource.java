@@ -36,7 +36,7 @@ import com.sun.jersey.core.util.Base64;
 
 @Path("/authentication")
 @Component
-@Profile("basicauth")
+//@Profile("basicauth")
 @Scope("singleton")
 public class AuthenticationApiResource {
 

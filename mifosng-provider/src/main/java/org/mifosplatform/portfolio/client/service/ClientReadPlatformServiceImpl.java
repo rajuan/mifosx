@@ -145,7 +145,6 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             }
         }
 
-        System.out.println("ClientReadPlatformServiceImpl.retrieveAll():sqlBuilder.toString():"+sqlBuilder.toString());
         final String sqlCountRows = "SELECT FOUND_ROWS()";
         return this.paginationHelper.fetchPage(this.jdbcTemplate, sqlCountRows, sqlBuilder.toString(), new Object[] {
                 underHierarchySearchString, underHierarchySearchString }, this.clientMapper);
@@ -200,10 +199,6 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             extraCriteria = extraCriteria.substring(4);
         }
         
-        if(searchParameters.getStaffId() != null){
-        	extraCriteria += " c.staff_id = "+searchParameters.getStaffId()+" ";
-        }
-
         return extraCriteria;
     }
 

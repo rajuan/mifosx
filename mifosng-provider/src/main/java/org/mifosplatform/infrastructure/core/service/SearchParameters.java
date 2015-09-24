@@ -43,10 +43,10 @@ public final class SearchParameters {
 
     public static SearchParameters forClients(final String sqlSearch, final Long officeId, final String externalId,
             final String displayName, final String firstname, final String lastname, final String hierarchy, final Integer offset,
-            final Integer limit, final String orderBy, final String sortOrder, final Boolean orphansOnly, final Long staffId) {
+            final Integer limit, final String orderBy, final String sortOrder, final Boolean orphansOnly) {
 
         final Integer maxLimitAllowed = getCheckedLimit(limit);
-//        final Long staffId = null;
+        final Long staffId = null;
         final String accountNo = null;
         final Long loanId = null;
         final Long savingsId = null;

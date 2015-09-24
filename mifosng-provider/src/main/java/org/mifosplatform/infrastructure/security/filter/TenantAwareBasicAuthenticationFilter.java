@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +51,7 @@ import org.springframework.stereotype.Service;
  * is returned.
  */
 @Service(value = "basicAuthenticationProcessingFilter")
-@Profile("basicauth")
+//@Profile("basicauth")
 public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFilter {
 
     private static boolean firstRequestProcessed = false;
@@ -66,7 +67,7 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
 
     @Autowired
     public TenantAwareBasicAuthenticationFilter(final AuthenticationManager authenticationManager,
-            final AuthenticationEntryPoint authenticationEntryPoint, final BasicAuthTenantDetailsService basicAuthTenantDetailsService,
+            final BasicAuthenticationEntryPoint authenticationEntryPoint, final BasicAuthTenantDetailsService basicAuthTenantDetailsService,
             final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer, final ConfigurationDomainService configurationDomainService,
             final CacheWritePlatformService cacheWritePlatformService) {
         super(authenticationManager, authenticationEntryPoint);
@@ -103,6 +104,12 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
                                 + "' or add the parameter 'tenantIdentifier' to query string of request URL."); }
 
                 String pathInfo = request.getRequestURI();
+                boolean isSelfServiceRequest = false;
+                if(pathInfo != null && pathInfo.contains("selfservice")){
+                	isSelfServiceRequest = true;
+                }
+                ThreadLocalContextUtil.setSelfServiceRequest(isSelfServiceRequest);
+                
                 boolean isReportRequest = false;
                 if (pathInfo != null && pathInfo.contains("report")) {
                     isReportRequest = true;
@@ -141,6 +148,7 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
             task.stop();
             final PlatformRequestLog log = PlatformRequestLog.from(task, request);
             logger.info(this.toApiJsonSerializer.serialize(log));
-        }
+            System.out.println("=================================================================");
+       }
     }
 }

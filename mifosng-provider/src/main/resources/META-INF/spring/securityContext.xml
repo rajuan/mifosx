@@ -20,32 +20,102 @@
    http://www.springframework.org/schema/security
    http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
-	<beans:beans profile="basicauth"> 
-		<http create-session="stateless" use-expressions="true" pattern="/api/**"
-			entry-point-ref="basicAuthenticationEntryPoint">
-			<intercept-url pattern="/api/*/authentication" access="permitAll"
-				method="POST" requires-channel="https" />
-			<intercept-url pattern="/api/**" access="isFullyAuthenticated()"
+	<!--  <beans:beans profile="basicauth">-->  
+		<http pattern="/mifosng-provider/api/oauth/token" create-session="stateless"
+			entry-point-ref="oauthAuthenticationEntryPoint" use-expressions="true"
+			authentication-manager-ref="clientAuthenticationManager">
+			<intercept-url pattern="/mifosng-provider/api/oauth/token" method="OPTIONS"
+				access="permitAll" requires-channel="https" />
+			<intercept-url pattern="/mifosng-provider/api/oauth/token" method="POST"
+				access="isFullyAuthenticated()" requires-channel="https" />
+			<anonymous enabled="false" />
+	
+			<custom-filter ref="tenantIdentifierProcessingFilter"
+				position="FIRST" />
+			<custom-filter ref="clientCredentialsTokenEndpointFilter"
+				before="BASIC_AUTH_FILTER" />
+			<access-denied-handler ref="oauthAccessDeniedHandler" />
+		</http>
+
+		<http pattern="/mifosng-provider/api/v1/userdetails" create-session="stateless"
+			entry-point-ref="oauthAuthenticationEntryPoint" use-expressions="true"
+			authentication-manager-ref="clientAuthenticationManager">
+			<intercept-url pattern="/mifosng-provider/api/v1/userdetails" method="OPTIONS"
+				access="permitAll" requires-channel="https" />
+			<intercept-url pattern="/mifosng-provider/api/v1/userdetails" method="POST"
+				access="isFullyAuthenticated()" requires-channel="https" />
+			<anonymous enabled="false" />
+	
+			<custom-filter ref="tenantIdentifierProcessingFilter"
+				position="FIRST" />
+			<custom-filter ref="clientCredentialsTokenEndpointFilter"
+				before="BASIC_AUTH_FILTER" />
+			<access-denied-handler ref="oauthAccessDeniedHandler" />
+		</http>
+
+		<http create-session="stateless" use-expressions="true" 
+			entry-point-ref="oauthAuthenticationEntryPoint"
+			access-decision-manager-ref="accessDecisionManager" request-matcher-ref="BearerTokenRequestMatcher">
+			<anonymous enabled="false" />
+			<intercept-url pattern="/mifosng-provider/api//v1/**" method="OPTIONS"
+				access="permitAll" requires-channel="https" />
+			<intercept-url pattern="/mifosng-provider/api/v1/**" access="isFullyAuthenticated()"
 				method="GET" requires-channel="https" />
-			<intercept-url pattern="/api/**" access="isFullyAuthenticated()"
+			<intercept-url pattern="/mifosng-provider/api/v1/**" access="isFullyAuthenticated()"
 				method="POST" requires-channel="https" />
-			<intercept-url pattern="/api/**" access="isFullyAuthenticated()"
+			<intercept-url pattern="/mifosng-provider/api/v1/**" access="isFullyAuthenticated()"
 				method="PUT" requires-channel="https" />
-			<intercept-url pattern="/api/**" access="isFullyAuthenticated()"
+			<intercept-url pattern="/mifosng-provider/api/v1/**" access="isFullyAuthenticated()"
 				method="DELETE" requires-channel="https" />
-			<intercept-url pattern="/api/**" access="isFullyAuthenticated()"
+			<intercept-url pattern="/mifosng-provider/api/v1/**" access="isFullyAuthenticated()"
+				method="HEAD" requires-channel="https" />
+			<custom-filter ref="tenantIdentifierProcessingFilter"
+				position="FIRST" />
+			<custom-filter before="PRE_AUTH_FILTER" ref="resourceServerFilter" />
+			<access-denied-handler ref="oauthAccessDeniedHandler" />
+		</http>
+	
+		<http create-session="stateless" use-expressions="true" 
+			entry-point-ref="basicAuthenticationEntryPoint" pattern="/mifosng-provider/api/*/authentication">
+			<intercept-url pattern="/mifosng-provider/api/*/authentication" method="OPTIONS"
+				access="permitAll" requires-channel="https" />
+			<intercept-url pattern="/mifosng-provider/api/*/authentication" access="permitAll"
+				method="POST" requires-channel="https" />
+			<custom-filter after="SECURITY_CONTEXT_FILTER"
+				ref="basicAuthenticationProcessingFilter" />
+		</http>
+
+		<http create-session="stateless" use-expressions="true" 
+			entry-point-ref="basicAuthenticationEntryPoint" request-matcher-ref="BasicAuthRequestMatcher">
+			<intercept-url pattern="/mifosng-provider/api//v1/**" method="OPTIONS"
+				access="permitAll" requires-channel="https" />
+			<intercept-url pattern="/mifosng-provider/api/**" access="isFullyAuthenticated()"
+				method="GET" requires-channel="https" />
+			<intercept-url pattern="/mifosng-provider/api/**" access="isFullyAuthenticated()"
+				method="POST" requires-channel="https" />
+			<intercept-url pattern="/mifosng-provider/api/**" access="isFullyAuthenticated()"
+				method="PUT" requires-channel="https" />
+			<intercept-url pattern="/mifosng-provider/api/**" access="isFullyAuthenticated()"
+				method="DELETE" requires-channel="https" />
+			<intercept-url pattern="/mifosng-provider/api/**" access="isFullyAuthenticated()"
 				method="HEAD" requires-channel="https" />
 	
 			<custom-filter after="SECURITY_CONTEXT_FILTER"
 				ref="basicAuthenticationProcessingFilter" />
 		</http>
-	
+
+		<beans:bean id="BasicAuthRequestMatcher"
+			class="org.mifosplatform.infrastructure.security.matcher.BasicAuthRequestMatcher">
+		</beans:bean>
+		<beans:bean id="BearerTokenRequestMatcher"
+			class="org.mifosplatform.infrastructure.security.matcher.BearerTokenRequestMatcher">
+		</beans:bean>
 		<beans:bean id="basicAuthenticationEntryPoint"
 			class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
 			<beans:property name="realmName" value="Mifos Platform API" />
 		</beans:bean>
 	
-		<beans:bean id="passwordEncoder"
+	<!--	<beans:bean id="passwordEncoder"
 			class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
 			<beans:constructor-arg value="256" />
 		</beans:bean>
@@ -66,45 +136,8 @@
 			erase-credentials="false">
 			<authentication-provider ref="customAuthenticationProvider" />
 		</authentication-manager>
-	</beans:beans> 
-	<beans:beans profile="oauth">
-		<http create-session="stateless" use-expressions="true" pattern="/api/v1/**"
-			entry-point-ref="oauthAuthenticationEntryPoint"
-			access-decision-manager-ref="accessDecisionManager">
-			<anonymous enabled="false" />
-			<intercept-url pattern="/api//v1/**" method="OPTIONS"
-				access="permitAll" requires-channel="https" />
-			<intercept-url pattern="/api/v1/**" access="isFullyAuthenticated()"
-				method="GET" requires-channel="https" />
-			<intercept-url pattern="/api/v1/**" access="isFullyAuthenticated()"
-				method="POST" requires-channel="https" />
-			<intercept-url pattern="/api/v1/**" access="isFullyAuthenticated()"
-				method="PUT" requires-channel="https" />
-			<intercept-url pattern="/api/v1/**" access="isFullyAuthenticated()"
-				method="DELETE" requires-channel="https" />
-			<intercept-url pattern="/api/v1/**" access="isFullyAuthenticated()"
-				method="HEAD" requires-channel="https" />
-			<custom-filter ref="tenantIdentifierProcessingFilter"
-				position="FIRST" />
-			<custom-filter before="PRE_AUTH_FILTER" ref="resourceServerFilter" />
-			<access-denied-handler ref="oauthAccessDeniedHandler" />
-		</http>
-	
-		<http pattern="/api/oauth/token" create-session="stateless"
-			entry-point-ref="oauthAuthenticationEntryPoint" use-expressions="true"
-			authentication-manager-ref="clientAuthenticationManager">
-			<intercept-url pattern="/api/oauth/token" method="OPTIONS"
-				access="permitAll" requires-channel="https" />
-			<intercept-url pattern="/api/oauth/token" method="POST"
-				access="isFullyAuthenticated()" requires-channel="https" />
-			<anonymous enabled="false" />
-	
-			<custom-filter ref="tenantIdentifierProcessingFilter"
-				position="FIRST" />
-			<custom-filter ref="clientCredentialsTokenEndpointFilter"
-				before="BASIC_AUTH_FILTER" />
-			<access-denied-handler ref="oauthAccessDeniedHandler" />
-		</http>
+	  </beans:beans> 
+	<beans:beans profile="oauth">-->
 		<beans:bean id="oauthAuthenticationEntryPoint"
 			class="org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint">
 			<beans:property name="realmName" value="Mifos Platform API" />
@@ -163,7 +196,7 @@
 		</beans:bean>
 	
 		<beans:bean id="customAuthenticationProvider"
-			class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+			class="org.mifosplatform.infrastructure.security.service.MifosDaoAuthenticationProvider">
 			<beans:property name="userDetailsService" ref="userDetailsService" />
 			<beans:property name="passwordEncoder" ref="passwordEncoder" />
 			<beans:property name="saltSource" ref="saltSource" />
@@ -215,6 +248,6 @@
 	
 		<oauth:resource-server id="resourceServerFilter"
 			token-services-ref="tokenServices" />
-	</beans:beans>
+	<!-- </beans:beans> -->
 </beans:beans>
 

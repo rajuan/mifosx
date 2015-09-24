@@ -36,7 +36,7 @@ import org.springframework.stereotype.Component;
  */
 @Path("/userdetails")
 @Component
-@Profile("oauth")
+//@Profile("oauth")
 @Scope("singleton")
 public class UserDetailsApiResource {
 

@@ -8,6 +8,7 @@ package org.mifosplatform.infrastructure.core.boot;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
+import org.mifosplatform.infrastructure.core.filters.ResponseCorsFilter;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +25,7 @@ import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
  *      href="http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto-convert-an-existing-application-to-spring-boot">#howto-convert-an-existing-application-to-spring-boot</a>
  */
 @Configuration
-@Profile("oauth")
+//@Profile("oauth")
 public class WebXmlOauthConfiguration {
 
 
@@ -42,8 +43,8 @@ public class WebXmlOauthConfiguration {
         jerseyServletRegistration.setName("jersey-servlet");
         jerseyServletRegistration.setLoadOnStartup(1);
         jerseyServletRegistration.addInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
-//        jerseyServletRegistration.addInitParameter("com.sun.jersey.spi.container.ContainerResponseFilters",
-//                ResponseCorsFilter.class.getName());
+        jerseyServletRegistration.addInitParameter("com.sun.jersey.spi.container.ContainerResponseFilters",
+                ResponseCorsFilter.class.getName());
         jerseyServletRegistration.addInitParameter("com.sun.jersey.config.feature.DisableWADL", "true");
         // debugging for development:
         // jerseyServletRegistration.addInitParameter("com.sun.jersey.spi.container.ContainerRequestFilters",
@@ -51,11 +52,11 @@ public class WebXmlOauthConfiguration {
         return jerseyServletRegistration;
     }
 
-    @Bean
-    public ServletRegistrationBean dispatcherRegistration(DispatcherServlet dispatcherServlet) {
-        ServletRegistrationBean registrationBean = new ServletRegistrationBean(dispatcherServlet);
-        registrationBean.addUrlMappings("/api/oauth/token");
-        return registrationBean;
-    }
+//    @Bean
+//    public ServletRegistrationBean dispatcherRegistration(DispatcherServlet dispatcherServlet) {
+//        ServletRegistrationBean registrationBean = new ServletRegistrationBean(dispatcherServlet);
+//        registrationBean.addUrlMappings("/api/oauth/token");
+//        return registrationBean;
+//    }
 
 }

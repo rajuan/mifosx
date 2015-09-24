@@ -119,10 +119,8 @@ public class ClientsApiResource {
 
         this.context.authenticatedUser().validateHasReadPermission(ClientApiConstants.CLIENT_RESOURCE_NAME);
 
-        System.out.println("ClientsApiResource.retrieveAll():this.context.authenticatedUser().getId():"+this.context.authenticatedUser().getId());
-        System.out.println("ClientsApiResource.retrieveAll():this.context.authenticatedUser().getStaffId():"+this.context.authenticatedUser().getStaffId());
         final SearchParameters searchParameters = SearchParameters.forClients(sqlSearch, officeId, externalId, displayName, firstname,
-                lastname, hierarchy, offset, limit, orderBy, sortOrder, orphansOnly, this.context.authenticatedUser().getStaffId());
+                lastname, hierarchy, offset, limit, orderBy, sortOrder, orphansOnly);
 
         final Page<ClientData> clientData = this.clientReadPlatformService.retrieveAll(searchParameters);
 
@@ -139,7 +137,6 @@ public class ClientsApiResource {
 
         this.context.authenticatedUser().validateHasReadPermission(ClientApiConstants.CLIENT_RESOURCE_NAME);
 
-        this.context.authenticatedUser().validateHasPermissionsForClient(clientId);
         final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
 
         ClientData clientData = this.clientReadPlatformService.retrieveOne(clientId);

@@ -33,7 +33,7 @@ public class EmbeddedTomcatWithSSLConfiguration {
     }
 
     private String getContextPath() {
-        return "/mifosng-provider";
+        return "/";///mifosng-provider";
     }
 
     protected Connector createSslConnector() {

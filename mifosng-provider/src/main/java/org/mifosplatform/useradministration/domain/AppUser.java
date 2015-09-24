@@ -86,7 +86,7 @@ public class AppUser extends AbstractPersistable<Long> implements PlatformUser {
     @JoinColumn(name = "office_id", nullable = false)
     private Office office;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "staff_id", nullable = true)
     private Staff staff;
 
@@ -100,9 +100,20 @@ public class AppUser extends AbstractPersistable<Long> implements PlatformUser {
 
     @Column(name = "password_never_expires", nullable = false)
     private boolean passwordNeverExpires;
+    
+    @Column(name="is_self_service_user")
+    private boolean isSelfServiceUser;
 
   
-    public static AppUser fromJson(final Office userOffice, final Staff linkedStaff, final Set<Role> allRoles, final JsonCommand command) {
+    public boolean isSelfServiceUser() {
+		return this.isSelfServiceUser;
+	}
+
+	public void setSelfServiceUser(boolean isSelfServiceUser) {
+		this.isSelfServiceUser = isSelfServiceUser;
+	}
+
+	public static AppUser fromJson(final Office userOffice, final Staff linkedStaff, final Set<Role> allRoles, final JsonCommand command) {
 
         final String username = command.stringValueOfParameterNamed("username");
         String password = command.stringValueOfParameterNamed("password");
@@ -442,9 +453,6 @@ public class AppUser extends AbstractPersistable<Long> implements PlatformUser {
         final String authorizationMessage = "User has no authority to view " + resourceType.toLowerCase() + "s";
         final String matchPermission = "READ_" + resourceType.toUpperCase();
 
-        System.out.println("AppUser.validateHasReadPermission():staff.getClientsLinkedToStaff():"+staff.getClientsLinkedToStaff());
-        System.out.println("AppUser.validateHasReadPermission():staff.getClientsLinkedToStaff().size():"+staff.getClientsLinkedToStaff().size());
-
         if (!hasNotPermissionForAnyOf("ALL_FUNCTIONS", "ALL_FUNCTIONS_READ", matchPermission)) { return; }
 
         throw new NoAuthorizationException(authorizationMessage);
@@ -578,12 +586,6 @@ public class AppUser extends AbstractPersistable<Long> implements PlatformUser {
         return !isEnabled();
     }
 
-	public void validateHasPermissionsForClient(Long clientId) {
-
-		if(!this.staff.validateHasClient(clientId))
-			throw new NoAuthorizationException("User has no authorization to view client [" + clientId + "]");
-	}
-	
 }
 
 

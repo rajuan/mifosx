@@ -15,8 +15,8 @@ import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.web.filter.DelegatingFilterProxy;
+import org.springframework.web.servlet.DispatcherServlet;
 
 import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
 
@@ -27,41 +27,47 @@ import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
  *      href="http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto-convert-an-existing-application-to-spring-boot">#howto-convert-an-existing-application-to-spring-boot</a>
  */
 @Configuration
-@Profile("basicauth")
+//@Profile("basicauth")
 public class WebXmlConfiguration {
 
-    @Autowired
-    private TenantAwareBasicAuthenticationFilter basicAuthenticationProcessingFilter;
+//    @Autowired
+//    private TenantAwareBasicAuthenticationFilter basicAuthenticationProcessingFilter;
+//
+//    @Bean
+//    public Filter springSecurityFilterChain() {
+//        return new DelegatingFilterProxy();
+//    }
+//
+//    @Bean
+//    public ServletRegistrationBean jersey() {
+//        Servlet jerseyServlet = new SpringServlet();
+//        ServletRegistrationBean jerseyServletRegistration = new ServletRegistrationBean();
+//        jerseyServletRegistration.setServlet(jerseyServlet);
+//        jerseyServletRegistration.addUrlMappings("/api/v1/*");
+//        jerseyServletRegistration.setName("jersey-servlet");
+//        jerseyServletRegistration.setLoadOnStartup(1);
+//        jerseyServletRegistration.addInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
+//        jerseyServletRegistration.addInitParameter("com.sun.jersey.spi.container.ContainerResponseFilters",
+//                ResponseCorsFilter.class.getName());
+//        jerseyServletRegistration.addInitParameter("com.sun.jersey.config.feature.DisableWADL", "true");
+//        // debugging for development:
+//        // jerseyServletRegistration.addInitParameter("com.sun.jersey.spi.container.ContainerRequestFilters",
+//        // LoggingFilter.class.getName());
+//        return jerseyServletRegistration;
+//    }
+//
+//    @Bean
+//    public FilterRegistrationBean filterRegistrationBean() {
+//        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+//        filterRegistrationBean.setFilter(basicAuthenticationProcessingFilter);
+//        filterRegistrationBean.setEnabled(false);
+//        return filterRegistrationBean;
+//    }
 
-    @Bean
-    public Filter springSecurityFilterChain() {
-        return new DelegatingFilterProxy();
-    }
-
-    @Bean
-    public ServletRegistrationBean jersey() {
-        Servlet jerseyServlet = new SpringServlet();
-        ServletRegistrationBean jerseyServletRegistration = new ServletRegistrationBean();
-        jerseyServletRegistration.setServlet(jerseyServlet);
-        jerseyServletRegistration.addUrlMappings("/api/v1/*");
-        jerseyServletRegistration.setName("jersey-servlet");
-        jerseyServletRegistration.setLoadOnStartup(1);
-        jerseyServletRegistration.addInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
-        jerseyServletRegistration.addInitParameter("com.sun.jersey.spi.container.ContainerResponseFilters",
-                ResponseCorsFilter.class.getName());
-        jerseyServletRegistration.addInitParameter("com.sun.jersey.config.feature.DisableWADL", "true");
-        // debugging for development:
-        // jerseyServletRegistration.addInitParameter("com.sun.jersey.spi.container.ContainerRequestFilters",
-        // LoggingFilter.class.getName());
-        return jerseyServletRegistration;
-    }
-
-    @Bean
-    public FilterRegistrationBean filterRegistrationBean() {
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
-        filterRegistrationBean.setFilter(basicAuthenticationProcessingFilter);
-        filterRegistrationBean.setEnabled(false);
-        return filterRegistrationBean;
-    }
-
+//    @Bean
+//    public ServletRegistrationBean dispatcherRegistration(DispatcherServlet dispatcherServlet) {
+//        ServletRegistrationBean registrationBean = new ServletRegistrationBean(dispatcherServlet);
+//        registrationBean.addUrlMappings("/api/oauth/token");
+//        return registrationBean;
+//    }
 }

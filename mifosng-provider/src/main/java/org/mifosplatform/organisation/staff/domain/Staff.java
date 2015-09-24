@@ -8,9 +8,16 @@ package org.mifosplatform.organisation.staff.domain;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
@@ -66,14 +73,6 @@ public class Staff extends AbstractPersistable<Long> {
     @JoinColumn(name = "image_id", nullable = true)
     private Image image;
     
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name="staff_id")
-    private Set<ClientLite> clientsLinkedToStaff;
-
-    public Set<ClientLite> getClientsLinkedToStaff() {
-		return this.clientsLinkedToStaff;
-	}
-
 	public static Staff fromJson(final Office staffOffice, final JsonCommand command) {
 
         final String firstnameParamName = "firstname";
@@ -257,19 +256,4 @@ public class Staff extends AbstractPersistable<Long> {
     public Image getImage() {
         return this.image;
     }
-
-	public boolean validateHasClient(Long clientId) {
-		for(ClientLite validClient : clientsLinkedToStaff){
-			if(validClient.getId() == clientId){
-				return true;
-			}
-		}
-		return false;
-	}
-}
-@Entity
-@Table(name="m_client")
-class ClientLite extends AbstractPersistable<Long> {
-
-	protected ClientLite(){}
 }
