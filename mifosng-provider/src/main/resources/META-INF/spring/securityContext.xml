@@ -21,6 +21,25 @@
    http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
 	<beans:beans profile="basicauth"> 
+		<http create-session="stateless" use-expressions="true" pattern="/api/*/self/**"
+			entry-point-ref="basicAuthenticationEntryPoint">
+			<intercept-url pattern="/api/*/self/authentication" access="permitAll"
+				method="POST" requires-channel="https" />
+			<intercept-url pattern="/api/*/self/**" access="isFullyAuthenticated()"
+				method="GET" requires-channel="https" />
+			<intercept-url pattern="/api/*/self/**" access="isFullyAuthenticated()"
+				method="POST" requires-channel="https" />
+			<intercept-url pattern="/api/*/self/**" access="isFullyAuthenticated()"
+				method="PUT" requires-channel="https" />
+			<intercept-url pattern="/api/*/self/**" access="isFullyAuthenticated()"
+				method="DELETE" requires-channel="https" />
+			<intercept-url pattern="/api/*/self/**" access="isFullyAuthenticated()"
+				method="HEAD" requires-channel="https" />
+	
+			<custom-filter after="SECURITY_CONTEXT_FILTER"
+				ref="basicAuthenticationProcessingFilter" />
+		</http>
+	
 		<http create-session="stateless" use-expressions="true" pattern="/api/**"
 			entry-point-ref="basicAuthenticationEntryPoint">
 			<intercept-url pattern="/api/*/authentication" access="permitAll"
@@ -68,9 +87,27 @@
 		</authentication-manager>
 	</beans:beans> 
 	<beans:beans profile="oauth">
-		<http create-session="stateless" use-expressions="true" pattern="/api/v1/**"
+
+		<http pattern="/api/oauth/token" create-session="stateless"
+			entry-point-ref="oauthAuthenticationEntryPoint" use-expressions="true"
+			authentication-manager-ref="clientAuthenticationManager">
+			<intercept-url pattern="/api/oauth/token" method="OPTIONS"
+				access="permitAll" requires-channel="https" />
+			<intercept-url pattern="/api/oauth/token" method="POST"
+				access="isFullyAuthenticated()" requires-channel="https" />
+			<anonymous enabled="false" />
+	
+			<custom-filter ref="tenantIdentifierProcessingFilter"
+				position="FIRST" />
+			<custom-filter ref="clientCredentialsTokenEndpointFilter"
+				before="BASIC_AUTH_FILTER" />
+			<access-denied-handler ref="oauthAccessDeniedHandler" />
+		</http>
+
+		<http create-session="stateless" use-expressions="true"  pattern="/api/vi/*"
 			entry-point-ref="oauthAuthenticationEntryPoint"
-			access-decision-manager-ref="accessDecisionManager">
+			access-decision-manager-ref="accessDecisionManager"
+			authentication-manager-ref="authenticationManager">
 			<anonymous enabled="false" />
 			<intercept-url pattern="/api//v1/**" method="OPTIONS"
 				access="permitAll" requires-channel="https" />
@@ -89,22 +126,10 @@
 			<custom-filter before="PRE_AUTH_FILTER" ref="resourceServerFilter" />
 			<access-denied-handler ref="oauthAccessDeniedHandler" />
 		</http>
-	
-		<http pattern="/api/oauth/token" create-session="stateless"
-			entry-point-ref="oauthAuthenticationEntryPoint" use-expressions="true"
-			authentication-manager-ref="clientAuthenticationManager">
-			<intercept-url pattern="/api/oauth/token" method="OPTIONS"
-				access="permitAll" requires-channel="https" />
-			<intercept-url pattern="/api/oauth/token" method="POST"
-				access="isFullyAuthenticated()" requires-channel="https" />
-			<anonymous enabled="false" />
-	
-			<custom-filter ref="tenantIdentifierProcessingFilter"
-				position="FIRST" />
-			<custom-filter ref="clientCredentialsTokenEndpointFilter"
-				before="BASIC_AUTH_FILTER" />
-			<access-denied-handler ref="oauthAccessDeniedHandler" />
-		</http>
+
+		<beans:bean id="bearerTokenRequestMatcher"
+			class="org.mifosplatform.infrastructure.security.matcher.BearerTokenRequestMatcher">
+		</beans:bean>
 		<beans:bean id="oauthAuthenticationEntryPoint"
 			class="org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint">
 			<beans:property name="realmName" value="Mifos Platform API" />
