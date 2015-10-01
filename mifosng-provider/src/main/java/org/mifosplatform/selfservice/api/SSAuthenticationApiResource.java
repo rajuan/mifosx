@@ -1,9 +1,4 @@
-/**
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/.
- */
-package org.mifosplatform.infrastructure.security.api;
+package org.mifosplatform.selfservice.api;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +19,6 @@ import org.mifosplatform.useradministration.domain.AppUser;
 import org.mifosplatform.useradministration.domain.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -34,22 +28,22 @@ import org.springframework.stereotype.Component;
 
 import com.sun.jersey.core.util.Base64;
 
-@Path("/authentication")
-@Component
-@Profile("basicauth")
-@Scope("singleton")
-public class AuthenticationApiResource {
 
-    private final DaoAuthenticationProvider providerAuthenticationProvider;
+@Path("/self/authentication")
+@Component
+@Scope("singleton")
+public class SSAuthenticationApiResource {
+
+    private final DaoAuthenticationProvider selfserviceAuthenticationProvider;
     private final ToApiJsonSerializer<AuthenticatedUserData> apiJsonSerializerService;
     private final SpringSecurityPlatformSecurityContext springSecurityPlatformSecurityContext;
 
     @Autowired
-    public AuthenticationApiResource(
-            @Qualifier("providerAuthenticationProvider") final DaoAuthenticationProvider providerAuthenticationProvider,
+    public SSAuthenticationApiResource(
+            @Qualifier("selfserviceAuthenticationProvider") final DaoAuthenticationProvider selfserviceAuthenticationProvider,
             final ToApiJsonSerializer<AuthenticatedUserData> apiJsonSerializerService,
             final SpringSecurityPlatformSecurityContext springSecurityPlatformSecurityContext) {
-        this.providerAuthenticationProvider = providerAuthenticationProvider;
+        this.selfserviceAuthenticationProvider = selfserviceAuthenticationProvider;
         this.apiJsonSerializerService = apiJsonSerializerService;
         this.springSecurityPlatformSecurityContext = springSecurityPlatformSecurityContext;
     }
@@ -59,7 +53,7 @@ public class AuthenticationApiResource {
     public String authenticate(@QueryParam("username") final String username, @QueryParam("password") final String password) {
 
         final Authentication authentication = new UsernamePasswordAuthenticationToken(username, password);
-        final Authentication authenticationCheck = this.providerAuthenticationProvider.authenticate(authentication);
+        final Authentication authenticationCheck = this.selfserviceAuthenticationProvider.authenticate(authentication);
 
         final Collection<String> permissions = new ArrayList<>();
         AuthenticatedUserData authenticatedUserData = new AuthenticatedUserData(username, permissions);

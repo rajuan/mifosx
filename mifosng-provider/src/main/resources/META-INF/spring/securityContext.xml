@@ -21,28 +21,30 @@
    http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
 	<beans:beans profile="basicauth"> 
-		<http create-session="stateless" use-expressions="true" pattern="/api/*/self/**"
-			entry-point-ref="basicAuthenticationEntryPoint">
-			<intercept-url pattern="/api/*/self/authentication" access="permitAll"
+		<http create-session="stateless" use-expressions="true" request-matcher="regex"  pattern="api\/.*\/self\/"
+			entry-point-ref="basicAuthenticationEntryPoint"
+			authentication-manager-ref="selfserviceAuthenticationManager">
+			<intercept-url pattern="api\/.*\/self\/authentication" access="permitAll"
 				method="POST" requires-channel="https" />
-			<intercept-url pattern="/api/*/self/**" access="isFullyAuthenticated()"
+			<intercept-url pattern="api\/.*\/self\/" access="isFullyAuthenticated()"
 				method="GET" requires-channel="https" />
-			<intercept-url pattern="/api/*/self/**" access="isFullyAuthenticated()"
+			<intercept-url pattern="api\/.*\/self\/" access="isFullyAuthenticated()"
 				method="POST" requires-channel="https" />
-			<intercept-url pattern="/api/*/self/**" access="isFullyAuthenticated()"
+			<intercept-url pattern="api\/.*\/self\/" access="isFullyAuthenticated()"
 				method="PUT" requires-channel="https" />
-			<intercept-url pattern="/api/*/self/**" access="isFullyAuthenticated()"
+			<intercept-url pattern="api\/.*\/self\/" access="isFullyAuthenticated()"
 				method="DELETE" requires-channel="https" />
-			<intercept-url pattern="/api/*/self/**" access="isFullyAuthenticated()"
+			<intercept-url pattern="api\/.*\/self\/" access="isFullyAuthenticated()"
 				method="HEAD" requires-channel="https" />
 	
 			<custom-filter after="SECURITY_CONTEXT_FILTER"
-				ref="basicAuthenticationProcessingFilter" />
+				ref="selfbasicAuthenticationProcessingFilter" />
 		</http>
 	
 		<http create-session="stateless" use-expressions="true" pattern="/api/**"
-			entry-point-ref="basicAuthenticationEntryPoint">
-			<intercept-url pattern="/api/*/authentication" access="permitAll"
+			entry-point-ref="basicAuthenticationEntryPoint"
+			authentication-manager-ref="providerAuthenticationManager">
+			<intercept-url pattern="/api/**/authentication" access="permitAll"
 				method="POST" requires-channel="https" />
 			<intercept-url pattern="/api/**" access="isFullyAuthenticated()"
 				method="GET" requires-channel="https" />
@@ -56,7 +58,7 @@
 				method="HEAD" requires-channel="https" />
 	
 			<custom-filter after="SECURITY_CONTEXT_FILTER"
-				ref="basicAuthenticationProcessingFilter" />
+				ref="providerbasicAuthenticationProcessingFilter" />
 		</http>
 	
 		<beans:bean id="basicAuthenticationEntryPoint"
@@ -74,16 +76,27 @@
 			<beans:property name="userPropertyToUse" value="id" />
 		</beans:bean>
 	
-		<beans:bean id="customAuthenticationProvider"
-			class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+		<beans:bean id="providerAuthenticationProvider"
+			class="org.mifosplatform.infrastructure.security.service.ProviderDaoAuthenticationProvider">
 			<beans:property name="userDetailsService" ref="userDetailsService" />
 			<beans:property name="passwordEncoder" ref="passwordEncoder" />
 			<beans:property name="saltSource" ref="saltSource" />
 		</beans:bean>
 	
-		<authentication-manager alias="authenticationManager"
+		<beans:bean id="selfserviceAuthenticationProvider"
+			class="org.mifosplatform.infrastructure.security.service.SelfserviceDaoAuthenticationProvider">
+			<beans:property name="userDetailsService" ref="userDetailsService" />
+			<beans:property name="passwordEncoder" ref="passwordEncoder" />
+			<beans:property name="saltSource" ref="saltSource" />
+		</beans:bean>
+
+		<authentication-manager alias="providerAuthenticationManager"
 			erase-credentials="false">
-			<authentication-provider ref="customAuthenticationProvider" />
+			<authentication-provider ref="providerAuthenticationProvider" />
+		</authentication-manager>
+		<authentication-manager alias="selfserviceAuthenticationManager"
+			erase-credentials="false">
+			<authentication-provider ref="selfserviceAuthenticationProvider" />
 		</authentication-manager>
 	</beans:beans> 
 	<beans:beans profile="oauth">

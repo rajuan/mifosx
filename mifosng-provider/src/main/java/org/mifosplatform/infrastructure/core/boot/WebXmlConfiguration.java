@@ -30,8 +30,8 @@ import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
 @Profile("basicauth")
 public class WebXmlConfiguration {
 
-    @Autowired
-    private TenantAwareBasicAuthenticationFilter basicAuthenticationProcessingFilter;
+//    @Autowired
+//    private TenantAwareBasicAuthenticationFilter basicAuthenticationProcessingFilter;
 
     @Bean
     public Filter springSecurityFilterChain() {
@@ -56,12 +56,12 @@ public class WebXmlConfiguration {
         return jerseyServletRegistration;
     }
 
-    @Bean
-    public FilterRegistrationBean filterRegistrationBean() {
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
-        filterRegistrationBean.setFilter(basicAuthenticationProcessingFilter);
-        filterRegistrationBean.setEnabled(false);
-        return filterRegistrationBean;
-    }
+//    @Bean
+//    public FilterRegistrationBean filterRegistrationBean() {
+//        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+//        filterRegistrationBean.setFilter(basicAuthenticationProcessingFilter);
+//        filterRegistrationBean.setEnabled(false);
+//        return filterRegistrationBean;
+//    }
 
 }

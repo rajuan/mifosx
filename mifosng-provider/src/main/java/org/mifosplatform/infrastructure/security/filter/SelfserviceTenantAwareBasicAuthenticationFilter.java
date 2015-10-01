@@ -50,12 +50,12 @@ import org.springframework.stereotype.Service;
  * If multi-tenant and basic auth credentials are invalid, a http error response
  * is returned.
  */
-@Service(value = "providerbasicAuthenticationProcessingFilter")
+@Service(value = "selfbasicAuthenticationProcessingFilter")
 @Profile("basicauth")
-public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFilter {
+public class SelfserviceTenantAwareBasicAuthenticationFilter extends BasicAuthenticationFilter {
 
     private static boolean firstRequestProcessed = false;
-    private final static Logger logger = LoggerFactory.getLogger(TenantAwareBasicAuthenticationFilter.class);
+    private final static Logger logger = LoggerFactory.getLogger(SelfserviceTenantAwareBasicAuthenticationFilter.class);
 
     private final BasicAuthTenantDetailsService basicAuthTenantDetailsService;
     private final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer;
@@ -66,11 +66,11 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
     private final boolean exceptionIfHeaderMissing = true;
 
     @Autowired
-    public TenantAwareBasicAuthenticationFilter(@Qualifier("providerAuthenticationManager") final AuthenticationManager providerAuthenticationManager,
+    public SelfserviceTenantAwareBasicAuthenticationFilter(@Qualifier("selfserviceAuthenticationManager") final AuthenticationManager selfserviceAuthenticationManager,
             final AuthenticationEntryPoint authenticationEntryPoint, final BasicAuthTenantDetailsService basicAuthTenantDetailsService,
             final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer, final ConfigurationDomainService configurationDomainService,
             final CacheWritePlatformService cacheWritePlatformService) {
-        super(providerAuthenticationManager, authenticationEntryPoint);
+        super(selfserviceAuthenticationManager, authenticationEntryPoint);
         this.basicAuthTenantDetailsService = basicAuthTenantDetailsService;
         this.toApiJsonSerializer = toApiJsonSerializer;
         this.configurationDomainService = configurationDomainService;
@@ -127,7 +127,7 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
                     } else {
                         this.cacheWritePlatformService.switchToCache(CacheType.NO_CACHE);
                     }
-                    TenantAwareBasicAuthenticationFilter.firstRequestProcessed = true;
+                    SelfserviceTenantAwareBasicAuthenticationFilter.firstRequestProcessed = true;
                 }
             }
 

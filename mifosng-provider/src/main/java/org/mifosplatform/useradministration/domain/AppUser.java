@@ -100,8 +100,15 @@ public class AppUser extends AbstractPersistable<Long> implements PlatformUser {
 
     @Column(name = "password_never_expires", nullable = false)
     private boolean passwordNeverExpires;
+    
+    @Column(name = "is_self_service_user")
+    private boolean isSelfServiceUser;
+    
+    public boolean isSelfServiceUser() {
+		return this.isSelfServiceUser;
+	}
 
-    public static AppUser fromJson(final Office userOffice, final Staff linkedStaff, final Set<Role> allRoles, final JsonCommand command) {
+	public static AppUser fromJson(final Office userOffice, final Staff linkedStaff, final Set<Role> allRoles, final JsonCommand command) {
 
         final String username = command.stringValueOfParameterNamed("username");
         String password = command.stringValueOfParameterNamed("password");
