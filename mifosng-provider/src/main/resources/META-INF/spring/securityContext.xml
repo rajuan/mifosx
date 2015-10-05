@@ -21,20 +21,20 @@
    http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
 	<beans:beans profile="basicauth"> 
-		<http create-session="stateless" use-expressions="true" request-matcher="regex"  pattern="api\/.*\/self\/"
+		<http create-session="stateless" use-expressions="true" request-matcher="regex"  pattern="\/self\/"
 			entry-point-ref="basicAuthenticationEntryPoint"
 			authentication-manager-ref="selfserviceAuthenticationManager">
-			<intercept-url pattern="api\/.*\/self\/authentication" access="permitAll"
+			<intercept-url pattern="\/self\/authentication" access="permitAll"
 				method="POST" requires-channel="https" />
-			<intercept-url pattern="api\/.*\/self\/" access="isFullyAuthenticated()"
+			<intercept-url pattern="\/self\/" access="isFullyAuthenticated()"
 				method="GET" requires-channel="https" />
-			<intercept-url pattern="api\/.*\/self\/" access="isFullyAuthenticated()"
+			<intercept-url pattern="\/self\/" access="isFullyAuthenticated()"
 				method="POST" requires-channel="https" />
-			<intercept-url pattern="api\/.*\/self\/" access="isFullyAuthenticated()"
+			<intercept-url pattern="\/self\/" access="isFullyAuthenticated()"
 				method="PUT" requires-channel="https" />
-			<intercept-url pattern="api\/.*\/self\/" access="isFullyAuthenticated()"
+			<intercept-url pattern="\/self\/" access="isFullyAuthenticated()"
 				method="DELETE" requires-channel="https" />
-			<intercept-url pattern="api\/.*\/self\/" access="isFullyAuthenticated()"
+			<intercept-url pattern="\/self\/" access="isFullyAuthenticated()"
 				method="HEAD" requires-channel="https" />
 	
 			<custom-filter after="SECURITY_CONTEXT_FILTER"
