@@ -73,7 +73,9 @@ public class LoanProductsApiResource {
             "paymentTypeOptions", "currencyOptions", "repaymentFrequencyTypeOptions", "interestRateFrequencyTypeOptions",
             "amortizationTypeOptions", "interestTypeOptions", "interestCalculationPeriodTypeOptions",
             "transactionProcessingStrategyOptions", "chargeOptions", "accountingOptions", "accountingRuleOptions",
-            "accountingMappingOptions"));
+            "accountingMappingOptions", "isLinkedToFloatingInterestRates", "floatingRatesId", "interestRateDifferential",
+            "minDifferentialLendingRate", "defaultDifferentialLendingRate", "maxDifferentialLendingRate",
+            "isFloatingInterestRateCalculationAllowed"));
 
     private final Set<String> PRODUCT_MIX_DATA_PARAMETERS = new HashSet<>(Arrays.asList("productId", "productName", "restrictedProducts",
             "allowedProducts", "productOptions"));

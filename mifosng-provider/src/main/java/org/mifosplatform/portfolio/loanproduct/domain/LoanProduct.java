@@ -153,6 +153,13 @@ public class LoanProduct extends AbstractPersistable<Long> {
     @Column(name = "instalment_amount_in_multiples_of", nullable = true)
     private Integer installmentAmountInMultiplesOf;
 
+    @Column(name = "is_linked_to_floating_interest_rates", nullable = false)
+    private boolean isLinkedToFloatingInterestRate;
+    
+	@LazyCollection(LazyCollectionOption.FALSE)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "loanProduct", optional = true, orphanRemoval = true)
+    private LoanProductFloatingRates floatingRates;
+
     public static LoanProduct assembleFromJson(final Fund fund, final LoanTransactionProcessingStrategy loanTransactionProcessingStrategy,
             final List<Charge> productCharges, final JsonCommand command, final AprCalculator aprCalculator) {
 
@@ -1187,4 +1194,13 @@ public class LoanProduct extends AbstractPersistable<Long> {
     public LoanProductRelatedDetail getLoanProductRelatedDetail() {
         return loanProductRelatedDetail;
     }
+
+    public boolean isLinkedToFloatingInterestRate() {
+		return this.isLinkedToFloatingInterestRate;
+	}
+
+	public LoanProductFloatingRates getFloatingRates() {
+		return this.floatingRates;
+	}
+
 }
