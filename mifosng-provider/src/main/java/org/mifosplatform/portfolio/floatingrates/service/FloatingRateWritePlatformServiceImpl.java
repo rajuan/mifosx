@@ -63,7 +63,7 @@ public class FloatingRateWritePlatformServiceImpl implements FloatingRateWritePl
 			final Map<String, Object> changes = floatingRateForUpdate.update(command, currentUser);
 			
             if (!changes.isEmpty()) {
-                this.floatingRateRepository.saveAndFlush(floatingRateForUpdate);
+                this.floatingRateRepository.save(floatingRateForUpdate);
             }
 
             return new CommandProcessingResultBuilder() //

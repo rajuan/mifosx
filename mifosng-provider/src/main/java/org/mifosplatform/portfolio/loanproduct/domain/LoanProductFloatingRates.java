@@ -58,6 +58,16 @@ public class LoanProductFloatingRates  extends AbstractPersistable<Long> {
 	public LoanProductFloatingRates(){
 		
 	}
+	public LoanProductFloatingRates(FloatingRate floatingRate, BigDecimal interestRateDifferential, 
+            BigDecimal minDifferentialLendingRate, BigDecimal maxDifferentialLendingRate, BigDecimal defaultDifferentialLendingRate, 
+            Boolean isFloatingInterestRateCalculationAllowed){
+		this.floatingRate = floatingRate;
+		this.interestRateDifferential = interestRateDifferential;
+		this.minDifferentialLendingRate = minDifferentialLendingRate;
+		this.maxDifferentialLendingRate = maxDifferentialLendingRate;
+		this.defaultDifferentialLendingRate = defaultDifferentialLendingRate;
+		this.isFloatingInterestRateCalculationAllowed = isFloatingInterestRateCalculationAllowed;
+	}
 
 	public LoanProduct getLoanProduct() {
 		return this.loanProduct;

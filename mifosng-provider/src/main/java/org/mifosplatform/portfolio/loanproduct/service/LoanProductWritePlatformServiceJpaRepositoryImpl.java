@@ -21,6 +21,8 @@ import org.mifosplatform.infrastructure.entityaccess.service.MifosEntityAccessUt
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.portfolio.charge.domain.Charge;
 import org.mifosplatform.portfolio.charge.domain.ChargeRepositoryWrapper;
+import org.mifosplatform.portfolio.floatingrates.domain.FloatingRate;
+import org.mifosplatform.portfolio.floatingrates.domain.FloatingRateRepositoryWrapper;
 import org.mifosplatform.portfolio.fund.domain.Fund;
 import org.mifosplatform.portfolio.fund.domain.FundRepository;
 import org.mifosplatform.portfolio.fund.exception.FundNotFoundException;
@@ -57,6 +59,7 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
     private final ChargeRepositoryWrapper chargeRepository;
     private final ProductToGLAccountMappingWritePlatformService accountMappingWritePlatformService;
     private final MifosEntityAccessUtil mifosEntityAccessUtil;
+    private final FloatingRateRepositoryWrapper floatingRateRepository;
 
     @Autowired
     public LoanProductWritePlatformServiceJpaRepositoryImpl(final PlatformSecurityContext context,
@@ -65,7 +68,8 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
             final LoanTransactionProcessingStrategyRepository loanTransactionProcessingStrategyRepository,
             final ChargeRepositoryWrapper chargeRepository,
             final ProductToGLAccountMappingWritePlatformService accountMappingWritePlatformService,
-            final MifosEntityAccessUtil mifosEntityAccessUtil) {
+            final MifosEntityAccessUtil mifosEntityAccessUtil,
+            final FloatingRateRepositoryWrapper floatingRateRepository) {
         this.context = context;
         this.fromApiJsonDeserializer = fromApiJsonDeserializer;
         this.loanProductRepository = loanProductRepository;
@@ -75,6 +79,7 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
         this.chargeRepository = chargeRepository;
         this.accountMappingWritePlatformService = accountMappingWritePlatformService;
         this.mifosEntityAccessUtil = mifosEntityAccessUtil;
+        this.floatingRateRepository = floatingRateRepository;
     }
 
     @Transactional
@@ -96,8 +101,13 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
             final String currencyCode = command.stringValueOfParameterNamed("currencyCode");
             final List<Charge> charges = assembleListOfProductCharges(command, currencyCode);
 
+            FloatingRate floatingRate = null;
+            if(command.parameterExists("floatingRatesId")){
+            	floatingRate = this.floatingRateRepository
+            			.findOneWithNotFoundDetection(command.longValueOfParameterNamed("floatingRatesId"));
+            }
             final LoanProduct loanproduct = LoanProduct.assembleFromJson(fund, loanTransactionProcessingStrategy, charges, command,
-                    this.aprCalculator);
+                    this.aprCalculator, floatingRate);
             loanproduct.updateLoanProductInRelatedClasses();
 
             this.loanProductRepository.save(loanproduct);

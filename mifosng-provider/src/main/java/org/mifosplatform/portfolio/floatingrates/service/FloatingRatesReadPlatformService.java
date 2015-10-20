@@ -9,5 +9,7 @@ public interface FloatingRatesReadPlatformService {
 	List<FloatingRateData> retrieveAll();
 
 	FloatingRateData retrieveOne(Long floatingRateId);
+	
+	List<FloatingRateData> retrieveAllActive();
 
 }

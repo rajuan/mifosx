@@ -35,6 +35,14 @@ public class FloatingRatesReadPlatformServiceImpl implements
 	}
 
 	@Override
+	public List<FloatingRateData> retrieveAllActive() {
+		FloatingRateRowMapper rateMapper = new FloatingRateRowMapper(false);
+		final String sql = "select " + rateMapper.schema()
+				+ " where rate.is_active = 1 ";
+		return this.jdbcTemplate.query(sql, rateMapper);
+	}
+ 
+	@Override
 	public FloatingRateData retrieveOne(final Long floatingRateId) {
 		try{
 			FloatingRateRowMapper rateMapper = new FloatingRateRowMapper(true);
@@ -132,4 +140,5 @@ public class FloatingRatesReadPlatformServiceImpl implements
 			return sqlQuery.toString();
 		}
 	}
+
 }
