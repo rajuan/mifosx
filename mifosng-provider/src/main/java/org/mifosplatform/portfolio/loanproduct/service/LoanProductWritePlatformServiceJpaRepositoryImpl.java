@@ -164,7 +164,13 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
             this.fromApiJsonDeserializer.validateForUpdate(command.json(), product);
             validateInputDates(command);
 
-            final Map<String, Object> changes = product.update(command, this.aprCalculator);
+            FloatingRate floatingRate = null;
+            if(command.parameterExists("floatingRatesId")){
+            	floatingRate = this.floatingRateRepository
+            			.findOneWithNotFoundDetection(command.longValueOfParameterNamed("floatingRatesId"));
+            }
+
+            final Map<String, Object> changes = product.update(command, this.aprCalculator, floatingRate);
 
             if (changes.containsKey("fundId")) {
                 final Long fundId = (Long) changes.get("fundId");

@@ -75,7 +75,7 @@ public class LoanProductsApiResource {
             "paymentTypeOptions", "currencyOptions", "repaymentFrequencyTypeOptions", "interestRateFrequencyTypeOptions",
             "amortizationTypeOptions", "interestTypeOptions", "interestCalculationPeriodTypeOptions",
             "transactionProcessingStrategyOptions", "chargeOptions", "accountingOptions", "accountingRuleOptions",
-            "accountingMappingOptions", "isLinkedToFloatingInterestRates", "floatingRatesId", "interestRateDifferential",
+            "accountingMappingOptions", "floatingRateOptions", "isLinkedToFloatingInterestRates", "floatingRatesId", "interestRateDifferential",
             "minDifferentialLendingRate", "defaultDifferentialLendingRate", "maxDifferentialLendingRate",
             "isFloatingInterestRateCalculationAllowed"));
 

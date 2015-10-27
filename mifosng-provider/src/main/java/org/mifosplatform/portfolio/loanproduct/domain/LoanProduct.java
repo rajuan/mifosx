@@ -654,10 +654,19 @@ public class LoanProduct extends AbstractPersistable<Long> {
         return this.loanConfigurableAttributes;
     }
 
-    public Map<String, Object> update(final JsonCommand command, final AprCalculator aprCalculator) {
+    public Map<String, Object> update(final JsonCommand command, final AprCalculator aprCalculator, FloatingRate floatingRate) {
 
         final Map<String, Object> actualChanges = this.loanProductRelatedDetail.update(command, aprCalculator);
         actualChanges.putAll(loanProductMinMaxConstraints().update(command));
+        
+        final String isLinkedToFloatingInterestRates = "isLinkedToFloatingInterestRates";
+        if(command.isChangeInBooleanParameterNamed(isLinkedToFloatingInterestRates, this.isLinkedToFloatingInterestRate)){
+        	final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(isLinkedToFloatingInterestRates);
+        	actualChanges.put(isLinkedToFloatingInterestRates, newValue);
+        	this.isLinkedToFloatingInterestRate = newValue;
+        }
+
+        actualChanges.putAll(loanProductFloatingRates().update(command, floatingRate));
 
         final String accountingTypeParamName = "accountingRule";
         if (command.isChangeInIntegerParameterNamed(accountingTypeParamName, this.accountingRule)) {
@@ -945,7 +954,14 @@ public class LoanProduct extends AbstractPersistable<Long> {
         return actualChanges;
     }
 
-    public boolean isAccountingDisabled() {
+	private LoanProductFloatingRates loanProductFloatingRates() {
+        this.floatingRates = this.floatingRates == null 
+        		? new LoanProductFloatingRates(null, null, null, null, null, null) 
+        		: this.floatingRates;
+        return this.floatingRates;
+	}
+
+	public boolean isAccountingDisabled() {
         return AccountingRuleType.NONE.getValue().equals(this.accountingRule);
     }
 
