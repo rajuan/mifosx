@@ -43,6 +43,14 @@ public class FloatingRatesReadPlatformServiceImpl implements
 	}
  
 	@Override
+	public List<FloatingRateData> retrieveLookupActive() {
+		FloatingRateLookupMapper rateMapper = new FloatingRateLookupMapper();
+		final String sql = "select " + rateMapper.schema()
+				+ " where rate.is_active = 1 ";
+		return this.jdbcTemplate.query(sql, rateMapper);
+	}
+ 
+	@Override
 	public FloatingRateData retrieveOne(final Long floatingRateId) {
 		try{
 			FloatingRateRowMapper rateMapper = new FloatingRateRowMapper(true);
@@ -94,7 +102,7 @@ public class FloatingRatesReadPlatformServiceImpl implements
 				ratePeriods = jdbcTemplate.query(sql, ratePeriodMapper, new Object[] {id});
 			}
 			return new FloatingRateData(id, name, isBaseLendingRate, isActive, 
-					createdBy, createdOn, modifiedBy, modifiedOn, ratePeriods);
+					createdBy, createdOn, modifiedBy, modifiedOn, ratePeriods, null);
 		}
 		
 		public String schema(){
@@ -134,6 +142,29 @@ public class FloatingRatesReadPlatformServiceImpl implements
 			final Date modifiedOn = rs.getDate("modifiedOn");
 			return new FloatingRatePeriodData(id, fromDate, interestRate, interestRatePeriodEnum, 
 					isDifferentialToBaseLendingRate, isActive, createdBy, createdOn, modifiedBy, modifiedOn);
+		}
+		
+		public String schema(){
+			return sqlQuery.toString();
+		}
+	}
+
+	private final class FloatingRateLookupMapper implements RowMapper<FloatingRateData> {
+		
+		private final StringBuilder sqlQuery = new StringBuilder()
+			.append("rate.id as id, ")
+			.append("rate.name as name, ")
+			.append("rate.is_base_lending_rate as isBaseLendingRate ")
+			.append("FROM m_floating_rates as rate ");
+		
+		@Override
+		public FloatingRateData mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum)
+				throws SQLException {
+			final Long id = rs.getLong("id");
+			final String name = rs.getString("name");
+			final boolean isBaseLendingRate = rs.getBoolean("isBaseLendingRate");
+			return new FloatingRateData(id, name, isBaseLendingRate, true, 
+					null, null, null, null, null, null);
 		}
 		
 		public String schema(){

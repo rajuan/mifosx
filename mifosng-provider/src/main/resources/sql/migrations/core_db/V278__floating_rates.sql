@@ -42,10 +42,6 @@ CREATE TABLE `m_product_loan_floating_rates` (
 	`default_differential_lending_rate` DECIMAL(19,6) NOT NULL DEFAULT 0,
 	`max_differential_lending_rate` DECIMAL(19,6) NOT NULL DEFAULT 0,
 	`is_floating_interest_rate_calculation_allowed` BIT(1) NOT NULL DEFAULT 0,
-	`createdby_id` BIGINT(20) NOT NULL,
-	`created_date` DATETIME NOT NULL,
-	`lastmodifiedby_id` BIGINT(20) NOT NULL,
-	`lastmodified_date` DATETIME NOT NULL,
 	PRIMARY KEY (`id`),
 	CONSTRAINT `FK_mappings_m_product_loan_id` FOREIGN KEY (`loan_product_id`) REFERENCES `m_product_loan` (`id`),
 	CONSTRAINT `FK_mappings_m_floating_rates_id` FOREIGN KEY (`floating_rates_id`) REFERENCES `m_floating_rates` (`id`)

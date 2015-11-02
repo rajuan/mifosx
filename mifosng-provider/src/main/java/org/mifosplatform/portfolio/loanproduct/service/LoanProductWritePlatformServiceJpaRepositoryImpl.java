@@ -26,6 +26,7 @@ import org.mifosplatform.portfolio.floatingrates.domain.FloatingRateRepositoryWr
 import org.mifosplatform.portfolio.fund.domain.Fund;
 import org.mifosplatform.portfolio.fund.domain.FundRepository;
 import org.mifosplatform.portfolio.fund.exception.FundNotFoundException;
+import org.mifosplatform.portfolio.loanaccount.domain.LoanRepository;
 import org.mifosplatform.portfolio.loanaccount.domain.LoanTransactionProcessingStrategyRepository;
 import org.mifosplatform.portfolio.loanaccount.exception.LoanTransactionProcessingStrategyNotFoundException;
 import org.mifosplatform.portfolio.loanaccount.loanschedule.domain.AprCalculator;
@@ -33,6 +34,7 @@ import org.mifosplatform.portfolio.loanproduct.domain.LoanProduct;
 import org.mifosplatform.portfolio.loanproduct.domain.LoanProductRepository;
 import org.mifosplatform.portfolio.loanproduct.domain.LoanTransactionProcessingStrategy;
 import org.mifosplatform.portfolio.loanproduct.exception.InvalidCurrencyException;
+import org.mifosplatform.portfolio.loanproduct.exception.LoanProductCannotBeModifiedDueToNonClosedLoansException;
 import org.mifosplatform.portfolio.loanproduct.exception.LoanProductDateException;
 import org.mifosplatform.portfolio.loanproduct.exception.LoanProductNotFoundException;
 import org.mifosplatform.portfolio.loanproduct.serialization.LoanProductDataValidator;
@@ -60,6 +62,7 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
     private final ProductToGLAccountMappingWritePlatformService accountMappingWritePlatformService;
     private final MifosEntityAccessUtil mifosEntityAccessUtil;
     private final FloatingRateRepositoryWrapper floatingRateRepository;
+    private final LoanRepository loanRepository;
 
     @Autowired
     public LoanProductWritePlatformServiceJpaRepositoryImpl(final PlatformSecurityContext context,
@@ -69,7 +72,8 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
             final ChargeRepositoryWrapper chargeRepository,
             final ProductToGLAccountMappingWritePlatformService accountMappingWritePlatformService,
             final MifosEntityAccessUtil mifosEntityAccessUtil,
-            final FloatingRateRepositoryWrapper floatingRateRepository) {
+            final FloatingRateRepositoryWrapper floatingRateRepository,
+            final LoanRepository loanRepository) {
         this.context = context;
         this.fromApiJsonDeserializer = fromApiJsonDeserializer;
         this.loanProductRepository = loanProductRepository;
@@ -80,6 +84,7 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
         this.accountMappingWritePlatformService = accountMappingWritePlatformService;
         this.mifosEntityAccessUtil = mifosEntityAccessUtil;
         this.floatingRateRepository = floatingRateRepository;
+        this.loanRepository = loanRepository;
     }
 
     @Transactional
@@ -164,6 +169,11 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
             this.fromApiJsonDeserializer.validateForUpdate(command.json(), product);
             validateInputDates(command);
 
+            if(anyChangeInCriticalFloatingRateLinkedParams(command, product) 
+            		&& this.loanRepository.doNonClosedLoanAccountsExistForProduct(product.getId())){
+            	throw new LoanProductCannotBeModifiedDueToNonClosedLoansException(product.getId());
+            }
+            
             FloatingRate floatingRate = null;
             if(command.parameterExists("floatingRatesId")){
             	floatingRate = this.floatingRateRepository
@@ -215,7 +225,15 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
 
     }
 
-    private List<Charge> assembleListOfProductCharges(final JsonCommand command, final String currencyCode) {
+    private boolean anyChangeInCriticalFloatingRateLinkedParams(JsonCommand command, LoanProduct product) {
+        final boolean isChangeFromFloatingToFlatOrViceVersa = command.isChangeInBooleanParameterNamed("isLinkedToFloatingInterestRates", product.isLinkedToFloatingInterestRate());
+    	final boolean isChangeInCriticalFloatingRateParams = product.getFloatingRates() != null
+    			&& (command.isChangeInLongParameterNamed("floatingRatesId", product.getFloatingRates().getFloatingRate().getId())
+    					|| command.isChangeInBigDecimalParameterNamed("interestRateDifferential", product.getFloatingRates().getInterestRateDifferential()));
+		return isChangeFromFloatingToFlatOrViceVersa || isChangeInCriticalFloatingRateParams;
+	}
+
+	private List<Charge> assembleListOfProductCharges(final JsonCommand command, final String currencyCode) {
 
         final List<Charge> charges = new ArrayList<>();
 

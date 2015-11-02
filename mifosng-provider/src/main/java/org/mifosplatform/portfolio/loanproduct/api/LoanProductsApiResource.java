@@ -286,7 +286,7 @@ public class LoanProductsApiResource {
                 .retrieveInterestRecalculationFrequencyTypeOptions();
         final List<EnumOptionData> preCloseInterestCalculationStrategyOptions = dropdownReadPlatformService
                 .retrivePreCloseInterestCalculationStrategyOptions();
-        final List<FloatingRateData> floatingRateOptions = this.floatingRateReadPlatformService.retrieveAllActive();
+        final List<FloatingRateData> floatingRateOptions = this.floatingRateReadPlatformService.retrieveLookupActive();
 
         return new LoanProductData(productData, chargeOptions, penaltyOptions, paymentTypeOptions, currencyOptions,
                 amortizationTypeOptions, interestTypeOptions, interestCalculationPeriodTypeOptions, repaymentFrequencyTypeOptions,

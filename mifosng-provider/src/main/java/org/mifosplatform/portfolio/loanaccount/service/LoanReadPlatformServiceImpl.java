@@ -5,6 +5,8 @@
  */
 package org.mifosplatform.portfolio.loanaccount.service;
 
+import static org.mifosplatform.portfolio.loanproduct.service.LoanEnumerations.interestType;
+
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -97,6 +99,7 @@ import org.mifosplatform.portfolio.loanaccount.loanschedule.data.OverdueLoanSche
 import org.mifosplatform.portfolio.loanaccount.loanschedule.domain.LoanScheduleGeneratorFactory;
 import org.mifosplatform.portfolio.loanproduct.data.LoanProductData;
 import org.mifosplatform.portfolio.loanproduct.data.TransactionProcessingStrategyData;
+import org.mifosplatform.portfolio.loanproduct.domain.InterestMethod;
 import org.mifosplatform.portfolio.loanproduct.service.LoanDropdownReadPlatformService;
 import org.mifosplatform.portfolio.loanproduct.service.LoanEnumerations;
 import org.mifosplatform.portfolio.loanproduct.service.LoanProductReadPlatformService;
@@ -601,6 +604,8 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
                     + " lir.rest_freqency_date as restFrequencyDate, "
                     + " lir.compounding_frequency_type_enum as compoundingFrequencyEnum, lir.compounding_frequency_interval as compoundingInterval, "
                     + " lir.compounding_freqency_date as compoundingFrequencyDate, "
+                    + " l.is_floating_interest_rate as isFloatingInterestRate, "
+                    + " l.interest_rate_differential as interestRateDifferential, "
                     + " l.create_standing_instruction_at_disbursement as createStandingInstructionAtDisbursement " + " from m_loan l" //
                     + " join m_product_loan lp on lp.id = l.product_id" //
                     + " left join m_loan_recalculation_details lir on lir.loan_id = l.id "
@@ -720,6 +725,8 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
             final Integer repaymentEvery = JdbcSupport.getInteger(rs, "repaymentEvery");
             final BigDecimal interestRatePerPeriod = rs.getBigDecimal("interestRatePerPeriod");
             final BigDecimal annualInterestRate = rs.getBigDecimal("annualInterestRate");
+            final BigDecimal interestRateDifferential = rs.getBigDecimal("interestRateDifferential");
+            final boolean isFloatingInterestRate = rs.getBoolean("isFloatingInterestRate");
 
             final Integer graceOnPrincipalPayment = JdbcSupport.getIntegerDefaultToNullIfZero(rs, "graceOnPrincipalPayment");
             final Integer graceOnInterestPayment = JdbcSupport.getIntegerDefaultToNullIfZero(rs, "graceOnInterestPayment");
@@ -878,6 +885,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
                     inArrearsTolerance, termFrequency, termPeriodFrequencyType, numberOfRepayments, repaymentEvery, repaymentFrequencyType,
                     repaymentFrequencyNthDayType, repaymentFrequencyDayOfWeekType, transactionStrategyId, transactionStrategyName,
                     amortizationType, interestRatePerPeriod, interestRateFrequencyType, annualInterestRate, interestType,
+                    isFloatingInterestRate, interestRateDifferential,
                     interestCalculationPeriodType, expectedFirstRepaymentOnDate, graceOnPrincipalPayment, graceOnInterestPayment,
                     graceOnInterestCharged, interestChargedFromDate, timeline, loanSummary, feeChargesDueAtDisbursementCharged,
                     syncDisbursementWithMeeting, loanCounter, loanProductCounter, multiDisburseLoan, canDefineInstallmentAmount,
@@ -1320,7 +1328,12 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
                 .retrieveInterestRateFrequencyTypeOptions();
         final Collection<EnumOptionData> amortizationTypeOptions = this.loanDropdownReadPlatformService
                 .retrieveLoanAmortizationTypeOptions();
-        final Collection<EnumOptionData> interestTypeOptions = this.loanDropdownReadPlatformService.retrieveLoanInterestTypeOptions();
+        Collection<EnumOptionData> interestTypeOptions = null;
+        if(loanProduct.isLinkedToFloatingInterestRates()){
+        	interestTypeOptions = Arrays.asList(interestType(InterestMethod.DECLINING_BALANCE));
+        }else {
+            interestTypeOptions = this.loanDropdownReadPlatformService.retrieveLoanInterestTypeOptions();
+        }
         final Collection<EnumOptionData> interestCalculationPeriodTypeOptions = this.loanDropdownReadPlatformService
                 .retrieveLoanInterestRateCalculatedInPeriodOptions();
         final Collection<FundData> fundOptions = this.fundReadPlatformService.retrieveAllFunds();

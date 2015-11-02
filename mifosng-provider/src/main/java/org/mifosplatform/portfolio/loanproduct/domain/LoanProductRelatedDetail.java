@@ -205,17 +205,20 @@ public class LoanProductRelatedDetail implements LoanProductMinimumRepaymentSche
 
     @Override
     public BigDecimal getNominalInterestRatePerPeriod() {
-        return BigDecimal.valueOf(Double.valueOf(this.nominalInterestRatePerPeriod.stripTrailingZeros().toString()));
+        return this.nominalInterestRatePerPeriod == null? null
+        		: BigDecimal.valueOf(Double.valueOf(this.nominalInterestRatePerPeriod.stripTrailingZeros().toString()));
     }
 
     @Override
     public PeriodFrequencyType getInterestPeriodFrequencyType() {
-        return this.interestPeriodFrequencyType;
+        return this.interestPeriodFrequencyType == null? PeriodFrequencyType.INVALID
+        		: this.interestPeriodFrequencyType;
     }
 
     @Override
     public BigDecimal getAnnualNominalInterestRate() {
-        return BigDecimal.valueOf(Double.valueOf(this.annualNominalInterestRate.stripTrailingZeros().toString()));
+        return this.annualNominalInterestRate == null? null
+        		:BigDecimal.valueOf(Double.valueOf(this.annualNominalInterestRate.stripTrailingZeros().toString()));
     }
 
     @Override
@@ -365,7 +368,9 @@ public class LoanProductRelatedDetail implements LoanProductMinimumRepaymentSche
         }
 
         final String interestRateFrequencyTypeParamName = "interestRateFrequencyType";
-        if (command.isChangeInIntegerParameterNamed(interestRateFrequencyTypeParamName, this.interestPeriodFrequencyType.getValue())) {
+        final int interestPeriodFrequencyType = this.interestPeriodFrequencyType == null? 
+        		PeriodFrequencyType.INVALID.getValue() : this.interestPeriodFrequencyType.getValue();
+        if (command.isChangeInIntegerParameterNamed(interestRateFrequencyTypeParamName, interestPeriodFrequencyType)) {
             final Integer newValue = command.integerValueOfParameterNamed(interestRateFrequencyTypeParamName);
             actualChanges.put(interestRateFrequencyTypeParamName, newValue);
             actualChanges.put("locale", localeAsInput);

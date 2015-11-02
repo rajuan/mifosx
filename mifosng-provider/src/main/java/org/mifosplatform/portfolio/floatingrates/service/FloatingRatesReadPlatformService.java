@@ -11,5 +11,7 @@ public interface FloatingRatesReadPlatformService {
 	FloatingRateData retrieveOne(Long floatingRateId);
 	
 	List<FloatingRateData> retrieveAllActive();
+	
+	List<FloatingRateData> retrieveLookupActive();
 
 }

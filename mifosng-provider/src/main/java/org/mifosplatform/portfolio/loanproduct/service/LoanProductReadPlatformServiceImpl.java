@@ -275,7 +275,7 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
             final int amortizationTypeId = JdbcSupport.getInteger(rs, "amortizationMethod");
             final EnumOptionData amortizationType = LoanEnumerations.amortizationType(amortizationTypeId);
 
-            final int interestRateFrequencyTypeId = JdbcSupport.getInteger(rs, "interestRatePerPeriodFreq");
+            final Integer interestRateFrequencyTypeId = JdbcSupport.getInteger(rs, "interestRatePerPeriodFreq");
             final EnumOptionData interestRateFrequencyType = LoanEnumerations.interestRateFrequencyType(interestRateFrequencyTypeId);
 
             final int interestTypeId = JdbcSupport.getInteger(rs, "interestMethod");

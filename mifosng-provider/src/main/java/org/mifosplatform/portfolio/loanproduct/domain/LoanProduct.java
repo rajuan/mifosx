@@ -183,7 +183,7 @@ public class LoanProduct extends AbstractPersistable<Long> {
         final PeriodFrequencyType repaymentFrequencyType = PeriodFrequencyType.fromInt(command
                 .integerValueOfParameterNamed("repaymentFrequencyType"));
         
-        PeriodFrequencyType interestFrequencyType = null;
+        PeriodFrequencyType interestFrequencyType = PeriodFrequencyType.INVALID;
         BigDecimal interestRatePerPeriod = null;
         BigDecimal minInterestRatePerPeriod = null;
         BigDecimal maxInterestRatePerPeriod = null;
@@ -548,7 +548,7 @@ public class LoanProduct extends AbstractPersistable<Long> {
 
         this.isLinkedToFloatingInterestRate = isLinkedToFloatingInterestRates == null? false : isLinkedToFloatingInterestRates;
         if(isLinkedToFloatingInterestRate){
-            this.floatingRates = new LoanProductFloatingRates(floatingRate, interestRateDifferential, minDifferentialLendingRate, maxDifferentialLendingRate, defaultDifferentialLendingRate, isFloatingInterestRateCalculationAllowed);
+            this.floatingRates = new LoanProductFloatingRates(floatingRate, this, interestRateDifferential, minDifferentialLendingRate, maxDifferentialLendingRate, defaultDifferentialLendingRate, isFloatingInterestRateCalculationAllowed);
         }
         
         this.loanProductRelatedDetail = new LoanProductRelatedDetail(currency, defaultPrincipal, defaultNominalInterestRatePerPeriod,
@@ -666,7 +666,9 @@ public class LoanProduct extends AbstractPersistable<Long> {
         	this.isLinkedToFloatingInterestRate = newValue;
         }
 
-        actualChanges.putAll(loanProductFloatingRates().update(command, floatingRate));
+        if(this.isLinkedToFloatingInterestRate){
+            actualChanges.putAll(loanProductFloatingRates().update(command, floatingRate));
+        }
 
         final String accountingTypeParamName = "accountingRule";
         if (command.isChangeInIntegerParameterNamed(accountingTypeParamName, this.accountingRule)) {
@@ -956,7 +958,7 @@ public class LoanProduct extends AbstractPersistable<Long> {
 
 	private LoanProductFloatingRates loanProductFloatingRates() {
         this.floatingRates = this.floatingRates == null 
-        		? new LoanProductFloatingRates(null, null, null, null, null, null) 
+        		? new LoanProductFloatingRates(null, null, null, null, null, null, null) 
         		: this.floatingRates;
         return this.floatingRates;
 	}

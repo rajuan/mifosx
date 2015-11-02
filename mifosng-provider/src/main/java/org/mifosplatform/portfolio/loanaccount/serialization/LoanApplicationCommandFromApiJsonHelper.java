@@ -52,6 +52,8 @@ public final class LoanApplicationCommandFromApiJsonHelper {
             "interestRatePerPeriod",
             "amortizationType",
             "interestType",
+            "isFloatingInterestRate", 
+            "interestRateDifferential", 
             "interestCalculationPeriodType",
             "interestRateFrequencyType",
             "expectedDisbursementDate",
@@ -203,21 +205,66 @@ public final class LoanApplicationCommandFromApiJsonHelper {
         baseDataValidator.reset().parameter(repaymentEveryFrequencyTypeParameterName).value(repaymentEveryType).notNull()
                 .inMinMaxRange(0, 3);
 
-        final String interestRatePerPeriodParameterName = "interestRatePerPeriod";
-        final BigDecimal interestRatePerPeriod = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(
-                interestRatePerPeriodParameterName, element);
-        baseDataValidator.reset().parameter(interestRatePerPeriodParameterName).value(interestRatePerPeriod).notNull()
-                .zeroOrPositiveAmount();
-
         final String interestTypeParameterName = "interestType";
         final Integer interestType = this.fromApiJsonHelper.extractIntegerSansLocaleNamed(interestTypeParameterName, element);
         baseDataValidator.reset().parameter(interestTypeParameterName).value(interestType).notNull().inMinMaxRange(0, 1);
-
+        
         final String interestCalculationPeriodTypeParameterName = "interestCalculationPeriodType";
         final Integer interestCalculationPeriodType = this.fromApiJsonHelper.extractIntegerSansLocaleNamed(
                 interestCalculationPeriodTypeParameterName, element);
         baseDataValidator.reset().parameter(interestCalculationPeriodTypeParameterName).value(interestCalculationPeriodType).notNull()
                 .inMinMaxRange(0, 1);
+
+        if(loanProduct.isLinkedToFloatingInterestRate()){
+            if(this.fromApiJsonHelper.parameterExists("interestRatePerPeriod", element)){
+                baseDataValidator.reset().parameter("interestRatePerPeriod").failWithCode("not.supported.loanproduct.linked.to.floating.rate", 
+                		"interestRatePerPeriod param is not supported, selected Loan Product is linked with floating interest rate.");
+            }
+            final String isFloatingInterestRateParameterName = "isFloatingInterestRate";
+            if(this.fromApiJsonHelper.parameterExists(isFloatingInterestRateParameterName, element)){
+                final Boolean isFloatingInterestRate = this.fromApiJsonHelper.extractBooleanNamed(
+                        isFloatingInterestRateParameterName, element);
+                baseDataValidator.reset().parameter(isFloatingInterestRateParameterName)
+                				.value(isFloatingInterestRate).notNull().trueOrFalseRequired(false);
+                if(isFloatingInterestRate != null && isFloatingInterestRate && !loanProduct.getFloatingRates().isFloatingInterestRateCalculationAllowed()){
+                        baseDataValidator.reset().parameter("isFloatingInterestRate").failWithCode("true.not.supported.for.selected.loanproduct", 
+                        		"isFloatingInterestRate value of true not supported for selected Loan Product.");
+                }
+            }else{
+            	baseDataValidator.reset().parameter(isFloatingInterestRateParameterName).trueOrFalseRequired(false);
+            }
+
+            if(interestType != null && interestType == InterestMethod.FLAT.getValue()){
+                baseDataValidator.reset().parameter(interestTypeParameterName).failWithCode("should.be.0.for.selected.loan.product", 
+                		"interestType should be DECLINING_BALANCE for selected Loan Product as it is linked to floating rates.");
+            }
+
+            final String interestRateDifferentialParameterName = "interestRateDifferential";
+            final BigDecimal interestRateDifferential = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(
+                    interestRateDifferentialParameterName, element);
+            baseDataValidator.reset().parameter(interestRateDifferentialParameterName).value(interestRateDifferential).notNull()
+                    .zeroOrPositiveAmount()
+                    .inMinAndMaxAmountRange(loanProduct.getFloatingRates().getMinDifferentialLendingRate(), 
+                    		loanProduct.getFloatingRates().getMaxDifferentialLendingRate());
+            
+        }else{
+        	
+            if(this.fromApiJsonHelper.parameterExists("isFloatingInterestRate", element)){
+                baseDataValidator.reset().parameter("isFloatingInterestRate").failWithCode("not.supported.loanproduct.not.linked.to.floating.rate", 
+                		"isFloatingInterestRate param is not supported, selected Loan Product is not linked with floating interest rate.");
+            }
+            if(this.fromApiJsonHelper.parameterExists("interestRateDifferential", element)){
+                baseDataValidator.reset().parameter("interestRateDifferential").failWithCode("not.supported.loanproduct.not.linked.to.floating.rate", 
+                		"interestRateDifferential param is not supported, selected Loan Product is not linked with floating interest rate.");
+            }
+
+            final String interestRatePerPeriodParameterName = "interestRatePerPeriod";
+            final BigDecimal interestRatePerPeriod = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(
+                    interestRatePerPeriodParameterName, element);
+            baseDataValidator.reset().parameter(interestRatePerPeriodParameterName).value(interestRatePerPeriod).notNull()
+                    .zeroOrPositiveAmount();
+
+        }
 
         final String amortizationTypeParameterName = "amortizationType";
         final Integer amortizationType = this.fromApiJsonHelper.extractIntegerSansLocaleNamed(amortizationTypeParameterName, element);
@@ -392,7 +439,7 @@ public final class LoanApplicationCommandFromApiJsonHelper {
         if (!dataValidationErrors.isEmpty()) { throw new PlatformApiDataValidationException(dataValidationErrors); }
     }
 
-    public void validateForModify(final String json, final LoanProduct loanProduct) {
+    public void validateForModify(final String json, final LoanProduct loanProduct, final Loan existingLoanApplication) {
         if (StringUtils.isBlank(json)) { throw new InvalidJsonException(); }
 
         final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
@@ -517,23 +564,75 @@ public final class LoanApplicationCommandFromApiJsonHelper {
                     element);
             baseDataValidator.reset().parameter(repaymentEveryTypeParameterName).value(repaymentEveryType).notNull().inMinMaxRange(0, 3);
         }
-
-        final String interestRatePerPeriodParameterName = "interestRatePerPeriod";
-        if (this.fromApiJsonHelper.parameterExists(interestRatePerPeriodParameterName, element)) {
-            atLeastOneParameterPassedForUpdate = true;
-            final BigDecimal interestRatePerPeriod = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(
-                    interestRatePerPeriodParameterName, element);
-            baseDataValidator.reset().parameter(interestRatePerPeriodParameterName).value(interestRatePerPeriod).notNull()
-                    .zeroOrPositiveAmount();
-        }
-
+        
         final String interestTypeParameterName = "interestType";
+        Integer interestType = null;
         if (this.fromApiJsonHelper.parameterExists(interestTypeParameterName, element)) {
             atLeastOneParameterPassedForUpdate = true;
-            final Integer interestType = this.fromApiJsonHelper.extractIntegerWithLocaleNamed(interestTypeParameterName, element);
+            interestType = this.fromApiJsonHelper.extractIntegerWithLocaleNamed(interestTypeParameterName, element);
             baseDataValidator.reset().parameter(interestTypeParameterName).value(interestType).notNull().inMinMaxRange(0, 1);
         }
 
+        if(loanProduct.isLinkedToFloatingInterestRate()){
+            if(this.fromApiJsonHelper.parameterExists("interestRatePerPeriod", element)){
+                baseDataValidator.reset().parameter("interestRatePerPeriod").failWithCode("not.supported.loanproduct.linked.to.floating.rate", 
+                		"interestRatePerPeriod param is not supported, selected Loan Product is linked with floating interest rate.");
+            }
+            final String isFloatingInterestRateParameterName = "isFloatingInterestRate";
+            final Boolean isFloatingInterestRate = this.fromApiJsonHelper.parameterExists(isFloatingInterestRateParameterName, element)
+            		? this.fromApiJsonHelper.extractBooleanNamed(isFloatingInterestRateParameterName, element)
+            		: existingLoanApplication.getIsFloatingInterestRate();
+            if(isFloatingInterestRate != null){
+                if(isFloatingInterestRate 
+                		&& !loanProduct.getFloatingRates().isFloatingInterestRateCalculationAllowed()){
+                        baseDataValidator.reset().parameter("isFloatingInterestRate").failWithCode("true.not.supported.for.selected.loanproduct", 
+                        		"isFloatingInterestRate value of true not supported for selected Loan Product.");
+                }
+            }else{
+            	baseDataValidator.reset().parameter(isFloatingInterestRateParameterName).trueOrFalseRequired(false);
+            }
+
+            if(interestType == null){
+            	interestType = existingLoanApplication.getLoanProductRelatedDetail().getInterestMethod().getValue();
+            }
+            if(interestType != null && interestType == InterestMethod.FLAT.getValue()){
+                baseDataValidator.reset().parameter(interestTypeParameterName).failWithCode("should.be.0.for.selected.loan.product", 
+                		"interestType should be DECLINING_BALANCE for selected Loan Product as it is linked to floating rates.");
+            }
+
+            final String interestRateDifferentialParameterName = "interestRateDifferential";
+            BigDecimal interestRateDifferential = existingLoanApplication.getInterestRateDifferential();
+            if(this.fromApiJsonHelper.parameterExists(interestRateDifferentialParameterName, element)){
+            	interestRateDifferential = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(
+                        interestRateDifferentialParameterName, element);
+            }
+            baseDataValidator.reset().parameter(interestRateDifferentialParameterName).value(interestRateDifferential).notNull()
+                    .zeroOrPositiveAmount()
+                    .inMinAndMaxAmountRange(loanProduct.getFloatingRates().getMinDifferentialLendingRate(), 
+                    		loanProduct.getFloatingRates().getMaxDifferentialLendingRate());
+            
+        }else{
+        	
+            if(this.fromApiJsonHelper.parameterExists("isFloatingInterestRate", element)){
+                baseDataValidator.reset().parameter("isFloatingInterestRate").failWithCode("not.supported.loanproduct.not.linked.to.floating.rate", 
+                		"isFloatingInterestRate param is not supported, selected Loan Product is not linked with floating interest rate.");
+            }
+            if(this.fromApiJsonHelper.parameterExists("interestRateDifferential", element)){
+                baseDataValidator.reset().parameter("interestRateDifferential").failWithCode("not.supported.loanproduct.not.linked.to.floating.rate", 
+                		"interestRateDifferential param is not supported, selected Loan Product is not linked with floating interest rate.");
+            }
+
+            final String interestRatePerPeriodParameterName = "interestRatePerPeriod";
+            BigDecimal interestRatePerPeriod = existingLoanApplication.getLoanProductRelatedDetail().getNominalInterestRatePerPeriod();
+            if(this.fromApiJsonHelper.parameterExists(interestRatePerPeriodParameterName, element)){
+                this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(
+                        interestRatePerPeriodParameterName, element);
+            }
+            baseDataValidator.reset().parameter(interestRatePerPeriodParameterName).value(interestRatePerPeriod).notNull()
+                    .zeroOrPositiveAmount();
+
+        }
+        
         final String interestCalculationPeriodTypeParameterName = "interestCalculationPeriodType";
         if (this.fromApiJsonHelper.parameterExists(interestCalculationPeriodTypeParameterName, element)) {
             atLeastOneParameterPassedForUpdate = true;

@@ -164,8 +164,11 @@ public class LoanScheduleAssembler {
         final BigDecimal interestRatePerPeriod = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed("interestRatePerPeriod", element);
         final PeriodFrequencyType interestRatePeriodFrequencyType = loanProduct.getInterestPeriodFrequencyType();
 
-        final BigDecimal annualNominalInterestRate = this.aprCalculator.calculateFrom(interestRatePeriodFrequencyType,
-                interestRatePerPeriod);
+        BigDecimal annualNominalInterestRate = BigDecimal.ZERO;
+        if(interestRatePerPeriod != null){
+            annualNominalInterestRate = this.aprCalculator.calculateFrom(interestRatePeriodFrequencyType,
+                    interestRatePerPeriod);
+        }
 
         // disbursement details
         final BigDecimal principal = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed("principal", element);

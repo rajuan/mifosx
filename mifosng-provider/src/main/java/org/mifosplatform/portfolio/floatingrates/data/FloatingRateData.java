@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 
 public class FloatingRateData implements Comparable<FloatingRateData> {
 
@@ -18,10 +19,13 @@ public class FloatingRateData implements Comparable<FloatingRateData> {
 	private final String modifiedBy;
 	private final Date modifiedOn;
 	private final List<FloatingRatePeriodData> ratePeriods;
+	@SuppressWarnings("unused")
+	private final List<EnumOptionData> interestRateFrequencyTypeOptions;
 
 	public FloatingRateData(Long id, String name, boolean isBaseLendingRate,
 			boolean isActive, String createdBy, Date createdOn,
-			String modifiedBy, Date modifiedOn, List<FloatingRatePeriodData> ratePeriods) {
+			String modifiedBy, Date modifiedOn, List<FloatingRatePeriodData> ratePeriods,
+			List<EnumOptionData> interestRateFrequencyTypeOptions) {
 		this.id = id;
 		this.name = name;
 		this.isBaseLendingRate = isBaseLendingRate;
@@ -31,6 +35,7 @@ public class FloatingRateData implements Comparable<FloatingRateData> {
 		this.modifiedBy = modifiedBy;
 		this.modifiedOn = modifiedOn;
 		this.ratePeriods = ratePeriods;
+		this.interestRateFrequencyTypeOptions = interestRateFrequencyTypeOptions;
 	}
 
 	public Long getId() {
@@ -103,4 +108,10 @@ public class FloatingRateData implements Comparable<FloatingRateData> {
                 .append(this.isActive) //
                 .toHashCode();
     }
+
+	public static FloatingRateData toTemplate(
+			List<EnumOptionData> interestRateFrequencyTypeOptions) {
+		// TODO Auto-generated method stub
+		return new FloatingRateData(null, null, false, true, null, null, null, null, null, interestRateFrequencyTypeOptions);
+	}
 }

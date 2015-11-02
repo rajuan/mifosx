@@ -5,6 +5,8 @@
  */
 package org.mifosplatform.portfolio.loanaccount.api;
 
+import static org.mifosplatform.portfolio.loanproduct.service.LoanEnumerations.interestType;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -85,6 +87,7 @@ import org.mifosplatform.portfolio.loanaccount.service.LoanChargeReadPlatformSer
 import org.mifosplatform.portfolio.loanaccount.service.LoanReadPlatformService;
 import org.mifosplatform.portfolio.loanproduct.data.LoanProductData;
 import org.mifosplatform.portfolio.loanproduct.data.TransactionProcessingStrategyData;
+import org.mifosplatform.portfolio.loanproduct.domain.InterestMethod;
 import org.mifosplatform.portfolio.loanproduct.service.LoanDropdownReadPlatformService;
 import org.mifosplatform.portfolio.loanproduct.service.LoanProductReadPlatformService;
 import org.mifosplatform.portfolio.note.data.NoteData;
@@ -117,7 +120,7 @@ public class LoansApiResource {
             "repaymentFrequencyDaysOfWeekTypeOptions", "termFrequencyTypeOptions", "interestRateFrequencyTypeOptions", "fundOptions",
             "repaymentStrategyOptions", "chargeOptions", "loanOfficerOptions", "loanPurposeOptions", "loanCollateralOptions",
             "chargeTemplate", "calendarOptions", "syncDisbursementWithMeeting", "loanCounter", "loanProductCounter", "notes",
-            "accountLinkingOptions", "linkedAccount"));
+            "accountLinkingOptions", "linkedAccount", "interestRateDifferential", "isFloatingInterestRate"));
 
     private final Set<String> LOAN_APPROVAL_DATA_PARAMETERS = new HashSet<>(Arrays.asList("approvalDate", "approvalAmount"));
     private final String resourceNameForPermissions = "LOAN";
@@ -488,7 +491,11 @@ public class LoansApiResource {
             interestRateFrequencyTypeOptions = this.dropdownReadPlatformService.retrieveInterestRateFrequencyTypeOptions();
 
             amortizationTypeOptions = this.dropdownReadPlatformService.retrieveLoanAmortizationTypeOptions();
-            interestTypeOptions = this.dropdownReadPlatformService.retrieveLoanInterestTypeOptions();
+            if(product.isLinkedToFloatingInterestRates()){
+            	interestTypeOptions = Arrays.asList(interestType(InterestMethod.DECLINING_BALANCE));
+            }else {
+                interestTypeOptions = this.dropdownReadPlatformService.retrieveLoanInterestTypeOptions();
+            }
             interestCalculationPeriodTypeOptions = this.dropdownReadPlatformService.retrieveLoanInterestRateCalculatedInPeriodOptions();
 
             fundOptions = this.fundReadPlatformService.retrieveAllFunds();

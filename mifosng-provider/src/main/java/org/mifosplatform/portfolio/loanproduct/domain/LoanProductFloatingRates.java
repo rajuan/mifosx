@@ -1,7 +1,6 @@
 package org.mifosplatform.portfolio.loanproduct.domain;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -14,7 +13,6 @@ import javax.persistence.Table;
 
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.portfolio.floatingrates.domain.FloatingRate;
-import org.mifosplatform.useradministration.domain.AppUser;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity
@@ -44,27 +42,14 @@ public class LoanProductFloatingRates  extends AbstractPersistable<Long> {
     @Column(name = "is_floating_interest_rate_calculation_allowed", nullable = false)
 	private boolean isFloatingInterestRateCalculationAllowed;
     
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "createdby_id", nullable = false)
-	private AppUser createdBy;
-	
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "lastmodifiedby_id", nullable = false)
-	private AppUser modifiedBy;
-	
-	@Column(name = "created_date", nullable = false)
-	private Date createdOn;
-	
-	@Column(name = "lastmodified_date", nullable = false)
-	private Date modifiedOn;
-
 	public LoanProductFloatingRates(){
 		
 	}
-	public LoanProductFloatingRates(FloatingRate floatingRate, BigDecimal interestRateDifferential, 
+	public LoanProductFloatingRates(FloatingRate floatingRate, LoanProduct loanProduct, BigDecimal interestRateDifferential, 
             BigDecimal minDifferentialLendingRate, BigDecimal maxDifferentialLendingRate, BigDecimal defaultDifferentialLendingRate, 
             Boolean isFloatingInterestRateCalculationAllowed){
 		this.floatingRate = floatingRate;
+		this.loanProduct = loanProduct;
 		this.interestRateDifferential = interestRateDifferential;
 		this.minDifferentialLendingRate = minDifferentialLendingRate;
 		this.maxDifferentialLendingRate = maxDifferentialLendingRate;
@@ -100,21 +85,6 @@ public class LoanProductFloatingRates  extends AbstractPersistable<Long> {
 		return this.isFloatingInterestRateCalculationAllowed;
 	}
 
-	public AppUser getCreatedBy() {
-		return this.createdBy;
-	}
-
-	public AppUser getModifiedBy() {
-		return this.modifiedBy;
-	}
-
-	public Date getCreatedOn() {
-		return this.createdOn;
-	}
-
-	public Date getModifiedOn() {
-		return this.modifiedOn;
-	}
 	public Map<? extends String, ? extends Object> update(JsonCommand command, FloatingRate floatingRate) {
         final Map<String, Object> actualChanges = new LinkedHashMap<>(20);
 		if(floatingRate != null){

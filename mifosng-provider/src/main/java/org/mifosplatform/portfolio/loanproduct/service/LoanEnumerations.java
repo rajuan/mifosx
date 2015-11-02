@@ -199,7 +199,7 @@ public class LoanEnumerations {
         return optionData;
     }
 
-    public static EnumOptionData interestRateFrequencyType(final int id) {
+    public static EnumOptionData interestRateFrequencyType(final Integer id) {
         return interestRateFrequencyType(PeriodFrequencyType.fromInt(id));
     }
 

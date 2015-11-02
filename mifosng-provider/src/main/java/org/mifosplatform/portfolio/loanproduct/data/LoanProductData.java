@@ -949,4 +949,26 @@ public class LoanProductData {
     public void setloanProductConfigurableAttributes(LoanProductConfigurableAttributes loanProductConfigurableAttributes) {
         this.allowAttributeOverrides = loanProductConfigurableAttributes;
     }
+
+	public boolean isLinkedToFloatingInterestRates() {
+		return this.isLinkedToFloatingInterestRates;
+	}
+
+	public BigDecimal getMinDifferentialLendingRate() {
+		return this.minDifferentialLendingRate;
+	}
+
+	public BigDecimal getDefaultDifferentialLendingRate() {
+		return this.defaultDifferentialLendingRate;
+	}
+
+	public BigDecimal getMaxDifferentialLendingRate() {
+		return this.maxDifferentialLendingRate;
+	}
+
+	public boolean isFloatingInterestRateCalculationAllowed() {
+		return this.isFloatingInterestRateCalculationAllowed;
+	}
+    
+    
 }
