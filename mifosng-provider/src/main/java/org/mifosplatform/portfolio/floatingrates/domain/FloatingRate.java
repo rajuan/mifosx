@@ -22,7 +22,6 @@ import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.serialization.JsonParserHelper;
 import org.mifosplatform.infrastructure.core.service.DateUtils;
-import org.mifosplatform.portfolio.common.domain.PeriodFrequencyType;
 import org.mifosplatform.useradministration.domain.AppUser;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
@@ -111,14 +110,12 @@ public class FloatingRate  extends AbstractPersistable<Long> {
 			final JsonParserHelper helper = new JsonParserHelper();
 			final Date fromDate = helper.extractLocalDateNamed("fromDate", ratePeriod, new HashSet<String>()).toDate();
 			final BigDecimal interestRate = ratePeriodObject.get("interestRate").getAsBigDecimal();
-			final PeriodFrequencyType interestRatePeriodEnum = PeriodFrequencyType.fromInt(ratePeriodObject.get("interestRatePeriodEnum").getAsInt());
 			final boolean isDifferentialToBaseLendingRate = helper.parameterExists("isDifferentialToBaseLendingRate", ratePeriod)?
 					ratePeriodObject.get("isDifferentialToBaseLendingRate").getAsBoolean():false;
 			final boolean isActive = true;
 			final Date currentDate = DateUtils.getDateOfTenant();
 			ratePeriods.add(new FloatingRatePeriod(fromDate, interestRate, 
-					interestRatePeriodEnum, isDifferentialToBaseLendingRate, 
-					isActive, currentUser, currentUser, currentDate, currentDate));
+					isDifferentialToBaseLendingRate, isActive, currentUser, currentUser, currentDate, currentDate));
 		}
 
 		return ratePeriods;

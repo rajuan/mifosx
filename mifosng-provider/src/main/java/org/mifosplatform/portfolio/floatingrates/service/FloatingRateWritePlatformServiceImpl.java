@@ -57,8 +57,8 @@ public class FloatingRateWritePlatformServiceImpl implements FloatingRateWritePl
 	@Override
 	public CommandProcessingResult updateFloatingRate(final JsonCommand command) {
 		try{
-			this.fromApiJsonDeserializer.validateForUpdate(command.json());
 			final FloatingRate floatingRateForUpdate = this.floatingRateRepository.findOneWithNotFoundDetection(command.entityId());
+			this.fromApiJsonDeserializer.validateForUpdate(command.json(),floatingRateForUpdate);
 			final AppUser currentUser = this.context.authenticatedUser(); 
 			final Map<String, Object> changes = floatingRateForUpdate.update(command, currentUser);
 			

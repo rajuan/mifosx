@@ -21,11 +21,9 @@ import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
-import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.mifosplatform.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
-import org.mifosplatform.portfolio.common.service.DropdownReadPlatformService;
 import org.mifosplatform.portfolio.floatingrates.data.FloatingRateData;
 import org.mifosplatform.portfolio.floatingrates.service.FloatingRatesReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,37 +45,20 @@ public class FloatingRatesApiResource {
 	private final DefaultToApiJsonSerializer<FloatingRateData> toApiJsonSerializer;
 	private final FloatingRatesReadPlatformService floatingRatesReadPlatformService;
 	private final ApiRequestParameterHelper apiRequestParameterHelper;
-    private final DropdownReadPlatformService dropdownReadPlatformService;
     
 	@Autowired
 	public FloatingRatesApiResource(final PlatformSecurityContext context,
             final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
 			final DefaultToApiJsonSerializer<FloatingRateData> toApiJsonSerializer,
             final ApiRequestParameterHelper apiRequestParameterHelper,
-			final FloatingRatesReadPlatformService floatingRatesReadPlatformService,
-			final DropdownReadPlatformService dropdownReadPlatformService){
+			final FloatingRatesReadPlatformService floatingRatesReadPlatformService){
 		this.context = context;
         this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
 		this.toApiJsonSerializer = toApiJsonSerializer;
         this.apiRequestParameterHelper = apiRequestParameterHelper;
 		this.floatingRatesReadPlatformService = floatingRatesReadPlatformService;
-		this.dropdownReadPlatformService = dropdownReadPlatformService;
 	}
 	
-    @GET
-    @Path("/template")
-    @Consumes({ MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_JSON })
-    public String retrieveTemplate(@Context final UriInfo uriInfo){
-        this.context.authenticatedUser();
-        final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-        
-        final List<EnumOptionData> interestRateFrequencyTypeOptions = this.dropdownReadPlatformService
-                .retrievePeriodFrequencyTypeOptions();
-        final FloatingRateData template = FloatingRateData.toTemplate(interestRateFrequencyTypeOptions);
-        return this.toApiJsonSerializer.serialize(settings, template);
-    }
-
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })

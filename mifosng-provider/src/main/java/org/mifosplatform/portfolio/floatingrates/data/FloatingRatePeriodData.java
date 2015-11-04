@@ -12,7 +12,6 @@ public class FloatingRatePeriodData  implements Comparable<FloatingRatePeriodDat
 	private Long id;
 	private Date fromDate;
 	private BigDecimal interestRate;
-	private int interestRatePeriodEnum;
 	private boolean isDifferentialToBaseLendingRate;
 	private boolean isActive;
 	private String createdBy;
@@ -21,13 +20,11 @@ public class FloatingRatePeriodData  implements Comparable<FloatingRatePeriodDat
 	private Date modifiedOn;
 
 	public FloatingRatePeriodData(Long id, Date fromDate,
-			BigDecimal interestRate, int interestRatePeriodEnum,
-			boolean isDifferentialToBaseLendingRate, boolean isActive,
+			BigDecimal interestRate, boolean isDifferentialToBaseLendingRate, boolean isActive,
 			String createdBy, Date createdOn, String modifiedBy, Date modifiedOn) {
 		this.id = id;
 		this.fromDate = fromDate;
 		this.interestRate = interestRate;
-		this.interestRatePeriodEnum = interestRatePeriodEnum;
 		this.isDifferentialToBaseLendingRate = isDifferentialToBaseLendingRate;
 		this.isActive = isActive;
 		this.createdBy = createdBy;
@@ -46,10 +43,6 @@ public class FloatingRatePeriodData  implements Comparable<FloatingRatePeriodDat
 
 	public BigDecimal getInterestRate() {
 		return this.interestRate;
-	}
-
-	public int getInterestRatePeriodEnum() {
-		return this.interestRatePeriodEnum;
 	}
 
 	public boolean isDifferentialToBaseLendingRate() {

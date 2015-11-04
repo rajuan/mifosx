@@ -5,13 +5,10 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.mifosplatform.portfolio.common.domain.PeriodFrequencyType;
 import org.mifosplatform.useradministration.domain.AppUser;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
@@ -29,10 +26,6 @@ public class FloatingRatePeriod  extends AbstractPersistable<Long> {
 	@Column(name = "interest_rate", scale = 6, precision = 19, nullable = false)
 	private BigDecimal interestRate;
 	
-    @Enumerated(EnumType.ORDINAL)
-    @Column(name = "interest_rate_period_enum", nullable = false)
-    private PeriodFrequencyType interestRatePeriodEnum;
-    
     @Column(name = "is_differential_to_base_lending_rate", nullable = false)
     private boolean isDifferentialToBaseLendingRate;
 
@@ -58,12 +51,11 @@ public class FloatingRatePeriod  extends AbstractPersistable<Long> {
 	}
 
 	public FloatingRatePeriod(Date fromDate, BigDecimal interestRate,
-			PeriodFrequencyType interestRatePeriodEnum, boolean isDifferentialToBaseLendingRate,
+			boolean isDifferentialToBaseLendingRate,
 			boolean isActive, AppUser createdBy, AppUser modifiedBy,
 			Date createdOn, Date modifiedOn) {
 		this.fromDate = fromDate;
 		this.interestRate = interestRate;
-		this.interestRatePeriodEnum = interestRatePeriodEnum;
 		this.isDifferentialToBaseLendingRate = isDifferentialToBaseLendingRate;
 		this.isActive = isActive;
 		this.createdBy = createdBy;
@@ -86,10 +78,6 @@ public class FloatingRatePeriod  extends AbstractPersistable<Long> {
 
 	public BigDecimal getInterestRate() {
 		return this.interestRate;
-	}
-
-	public PeriodFrequencyType getInterestRatePeriodEnum() {
-		return this.interestRatePeriodEnum;
 	}
 
 	public boolean isDifferentialToBaseLendingRate() {

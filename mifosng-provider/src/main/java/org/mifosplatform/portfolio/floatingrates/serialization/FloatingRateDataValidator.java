@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,7 +30,7 @@ public class FloatingRateDataValidator {
 	private final Set<String> supportedParametersForFloatingRates = new HashSet<>(Arrays.asList("name",
 			"isBaseLendingRate", "isActive", "ratePeriods"));
 	private final Set<String> supportedParametersForFloatingRatePeriods = new HashSet<>(Arrays.asList("fromDate", 
-			"interestRate", "interestRatePeriodEnum", "isDifferentialToBaseLendingRate","locale", "dateFormat"));
+			"interestRate", "isDifferentialToBaseLendingRate","locale", "dateFormat"));
 	
 	private final FromJsonHelper fromApiJsonHelper;
 	private final FloatingRateRepository floatingRateRepository;
@@ -103,10 +102,6 @@ public class FloatingRateDataValidator {
     	            final BigDecimal interestRatePerPeriod = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed("interestRate", ratePeriod);
     	            baseDataValidator.reset().parameter("interestRate").value(interestRatePerPeriod).notNull().zeroOrPositiveAmount();
 
-    	            final Integer interestRateFrequencyType = this.fromApiJsonHelper.extractIntegerNamed("interestRatePeriodEnum", ratePeriod,
-    	                    Locale.getDefault());
-    	            baseDataValidator.reset().parameter("interestRatePeriodEnum").value(interestRateFrequencyType).notNull().inMinMaxRange(0, 3);
-    	            
     	            if(this.fromApiJsonHelper.parameterExists("isDifferentialToBaseLendingRate", ratePeriod)){
     	            	final Boolean isDifferentialToBaseLendingRate = this.fromApiJsonHelper.extractBooleanNamed("isDifferentialToBaseLendingRate", ratePeriod);
     	            	if(isDifferentialToBaseLendingRate == null){
@@ -131,7 +126,7 @@ public class FloatingRateDataValidator {
         }
 	}
 
-	public void validateForUpdate(String json) {
+	public void validateForUpdate(String json, FloatingRate floatingRateForUpdate) {
 		final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
         this.fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, this.supportedParametersForFloatingRates);
         
@@ -153,7 +148,8 @@ public class FloatingRateDataValidator {
         		baseDataValidator.reset().parameter("isBaseLendingRate").trueOrFalseRequired(false);
         	}else if(isBaseLendingRate){
         		FloatingRate baseLendingRate = this.floatingRateRepository.retrieveBaseLendingRate();
-        		if(baseLendingRate != null){
+        		if(baseLendingRate != null 
+        				&& baseLendingRate.getId() != floatingRateForUpdate.getId()){
         			baseDataValidator.reset().parameter("isBaseLendingRate").value(isBaseLendingRate)
         				.failWithCode("baselendingrate.duplicate", "Base Lending Rate already exists");
         		}

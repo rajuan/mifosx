@@ -98,7 +98,7 @@ public class FloatingRatesReadPlatformServiceImpl implements
 			if(addRatePeriods){
 				FloatingRatePeriodRowMapper ratePeriodMapper = new FloatingRatePeriodRowMapper();
 				final String sql = "select " + ratePeriodMapper.schema()
-						+ " where period.floating_rates_id = ? ";
+						+ " where period.is_active = 1 and period.floating_rates_id = ? ";
 				ratePeriods = jdbcTemplate.query(sql, ratePeriodMapper, new Object[] {id});
 			}
 			return new FloatingRateData(id, name, isBaseLendingRate, isActive, 
@@ -116,7 +116,6 @@ public class FloatingRatesReadPlatformServiceImpl implements
 			.append("period.id as id, ")
 			.append("period.from_date as fromDate, ")
 			.append("period.interest_rate as interestRate, ")
-			.append("period.interest_rate_period_enum as interestRatePeriodEnum, ")
 			.append("period.is_differential_to_base_lending_rate as isDifferentialToBaseLendingRate, ")
 			.append("period.is_active as isActive, ")
 			.append("crappu.username as createdBy, ")
@@ -133,14 +132,13 @@ public class FloatingRatesReadPlatformServiceImpl implements
 			final Long id = rs.getLong("id");
 			final Date fromDate = rs.getDate("fromDate");
 			final BigDecimal interestRate = rs.getBigDecimal("interestRate");
-			final int interestRatePeriodEnum = rs.getInt("interestRatePeriodEnum");
 			final boolean isDifferentialToBaseLendingRate = rs.getBoolean("isDifferentialToBaseLendingRate");
 			final boolean isActive = rs.getBoolean("isActive");
 			final String createdBy = rs.getString("createdBy");
 			final Date createdOn = rs.getDate("createdOn");
 			final String modifiedBy = rs.getString("modifiedBy");
 			final Date modifiedOn = rs.getDate("modifiedOn");
-			return new FloatingRatePeriodData(id, fromDate, interestRate, interestRatePeriodEnum, 
+			return new FloatingRatePeriodData(id, fromDate, interestRate,  
 					isDifferentialToBaseLendingRate, isActive, createdBy, createdOn, modifiedBy, modifiedOn);
 		}
 		

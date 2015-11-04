@@ -16,7 +16,6 @@ CREATE TABLE `m_floating_rates_periods` (
 	`floating_rates_id` BIGINT(20) NOT NULL,
 	`from_date` DATETIME NOT NULL,
 	`interest_rate` DECIMAL(19,6) NOT NULL,
-	`interest_rate_period_enum` SMALLINT(5) NULL,
 	`is_differential_to_base_lending_rate` BIT(1) NOT NULL DEFAULT 0,
 	`is_active` BIT(1) NOT NULL DEFAULT 1,
 	`createdby_id` BIGINT(20) NOT NULL,
