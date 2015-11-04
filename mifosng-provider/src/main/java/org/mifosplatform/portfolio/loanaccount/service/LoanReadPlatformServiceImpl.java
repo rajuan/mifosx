@@ -63,6 +63,8 @@ import org.mifosplatform.portfolio.client.domain.ClientEnumerations;
 import org.mifosplatform.portfolio.client.service.ClientReadPlatformService;
 import org.mifosplatform.portfolio.common.domain.PeriodFrequencyType;
 import org.mifosplatform.portfolio.common.service.CommonEnumerations;
+import org.mifosplatform.portfolio.floatingrates.data.InterestRatePeriodData;
+import org.mifosplatform.portfolio.floatingrates.service.FloatingRatesReadPlatformService;
 import org.mifosplatform.portfolio.fund.data.FundData;
 import org.mifosplatform.portfolio.fund.service.FundReadPlatformService;
 import org.mifosplatform.portfolio.group.data.GroupGeneralData;
@@ -145,6 +147,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
     private final WorkingDaysRepositoryWrapper workingDaysRepository;
     private final PaymentTypeReadPlatformService paymentTypeReadPlatformService;
     private final LoanRepaymentScheduleTransactionProcessorFactory loanRepaymentScheduleTransactionProcessorFactory;
+    private final FloatingRatesReadPlatformService floatingRatesReadPlatformService;
 
     @Autowired
     public LoanReadPlatformServiceImpl(final PlatformSecurityContext context, final LoanRepository loanRepository,
@@ -158,7 +161,8 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
             final LoanScheduleGeneratorFactory loanScheduleFactory, final CalendarInstanceRepository calendarInstanceRepository,
             final HolidayRepository holidayRepository, final ConfigurationDomainService configurationDomainService,
             final WorkingDaysRepositoryWrapper workingDaysRepository, PaymentTypeReadPlatformService paymentTypeReadPlatformService,
-            final LoanRepaymentScheduleTransactionProcessorFactory loanRepaymentScheduleTransactionProcessorFactory) {
+            final LoanRepaymentScheduleTransactionProcessorFactory loanRepaymentScheduleTransactionProcessorFactory,
+            final FloatingRatesReadPlatformService floatingRatesReadPlatformService) {
         this.context = context;
         this.loanRepository = loanRepository;
         this.loanTransactionRepository = loanTransactionRepository;
@@ -181,6 +185,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
         this.workingDaysRepository = workingDaysRepository;
         this.paymentTypeReadPlatformService = paymentTypeReadPlatformService;
         this.loanRepaymentScheduleTransactionProcessorFactory = loanRepaymentScheduleTransactionProcessorFactory;
+        this.floatingRatesReadPlatformService = floatingRatesReadPlatformService;
     }
 
     @Override
@@ -1910,5 +1915,52 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
                 retrieveTotalPaidInAdvance(loan.getId()).getPaidInAdvance(), null, null, null, null, null, null, paymentOptions, null, null,
                 null, null, false);
     }
+
+	@Override
+	public Collection<InterestRatePeriodData> retrieveLoanInterestRatePeriodData(
+			Long loanId) {
+        this.context.authenticatedUser();
+
+        final Loan loan = this.loanRepository.findOne(loanId);
+        if (loan == null) { throw new LoanNotFoundException(loanId); }
+        
+        if(loan.loanProduct().isLinkedToFloatingInterestRate()){
+        	final Collection<InterestRatePeriodData> intRatePeriodData = new ArrayList<>();
+        	final Collection<InterestRatePeriodData> intRates = this.floatingRatesReadPlatformService
+        			.retrieveInterestRatePeriods(loan.loanProduct().getFloatingRates().getFloatingRate().getId());
+    		for(final InterestRatePeriodData rate : intRates){
+    			if(rate.getFromDate().compareTo(loan.getInterestChargedFromDate().toDate()) > 0 && loan.getIsFloatingInterestRate()){
+    				updateInterestRatePeriodData(rate, loan);
+    				intRatePeriodData.add(rate);
+    			}else if(rate.getFromDate().compareTo(loan.getInterestChargedFromDate().toDate()) <= 0){
+    				updateInterestRatePeriodData(rate, loan);
+    				intRatePeriodData.add(rate);
+    				break;
+    			}
+    		}
+        	
+        	return intRatePeriodData;
+        }
+        return null;
+	}
+
+	private void updateInterestRatePeriodData(InterestRatePeriodData rate,
+			Loan loan) {
+		rate.setLoanProductDifferentialInterestRate(loan.loanProduct().getFloatingRates().getInterestRateDifferential());
+		rate.setLoanDifferentialInterestRate(loan.getInterestRateDifferential());
+		
+		BigDecimal effectiveInterestRate = BigDecimal.ZERO;
+		effectiveInterestRate = effectiveInterestRate.add(rate.getLoanDifferentialInterestRate());
+		effectiveInterestRate = effectiveInterestRate.add(rate.getLoanProductDifferentialInterestRate());
+		effectiveInterestRate = effectiveInterestRate.add(rate.getInterestRate());
+		if(rate.getBlrInterestRate() != null && rate.isDifferentialToBLR()){
+			effectiveInterestRate = effectiveInterestRate.add(rate.getBlrInterestRate());
+		}
+		rate.setEffectiveInterestRate(effectiveInterestRate);
+
+		if(rate.getFromDate().compareTo(loan.getInterestChargedFromDate().toDate()) < 0){
+			rate.setFromDate(loan.getInterestChargedFromDate().toDate());
+		}
+	}
 
 }

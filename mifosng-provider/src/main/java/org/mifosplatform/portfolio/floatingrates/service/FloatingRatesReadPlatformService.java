@@ -2,6 +2,7 @@ package org.mifosplatform.portfolio.floatingrates.service;
 
 import java.util.List;
 
+import org.mifosplatform.portfolio.floatingrates.data.InterestRatePeriodData;
 import org.mifosplatform.portfolio.floatingrates.data.FloatingRateData;
 
 public interface FloatingRatesReadPlatformService {
@@ -13,5 +14,7 @@ public interface FloatingRatesReadPlatformService {
 	List<FloatingRateData> retrieveAllActive();
 	
 	List<FloatingRateData> retrieveLookupActive();
+
+	List<InterestRatePeriodData> retrieveInterestRatePeriods(Long floatingRateId);
 
 }

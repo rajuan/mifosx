@@ -27,6 +27,7 @@ import org.mifosplatform.portfolio.account.data.PortfolioAccountData;
 import org.mifosplatform.portfolio.calendar.data.CalendarData;
 import org.mifosplatform.portfolio.charge.data.ChargeData;
 import org.mifosplatform.portfolio.collateral.data.CollateralData;
+import org.mifosplatform.portfolio.floatingrates.data.InterestRatePeriodData;
 import org.mifosplatform.portfolio.fund.data.FundData;
 import org.mifosplatform.portfolio.group.data.GroupGeneralData;
 import org.mifosplatform.portfolio.loanaccount.domain.LoanStatus;
@@ -184,6 +185,8 @@ public class LoanAccountData {
 
     // Paid In Advance
     private final PaidInAdvanceData paidInAdvance;
+    
+    private Collection<InterestRatePeriodData> interestRatesPeriods;
 
     /**
      * Used to produce a {@link LoanAccountData} with only collateral options
@@ -1420,4 +1423,9 @@ public class LoanAccountData {
         if(this.summary != null) return this.summary.getTotalPaidFeeCharges() ;
         return BigDecimal.ZERO ;
     }
+
+	public void setInterestRatePeriodData(
+			Collection<InterestRatePeriodData> interestRatesPeriods) {
+		this.interestRatesPeriods = interestRatesPeriods;		
+	}
 }

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.mifosplatform.infrastructure.core.service.RoutingDataSource;
+import org.mifosplatform.portfolio.floatingrates.data.InterestRatePeriodData;
 import org.mifosplatform.portfolio.floatingrates.data.FloatingRateData;
 import org.mifosplatform.portfolio.floatingrates.data.FloatingRatePeriodData;
 import org.mifosplatform.portfolio.floatingrates.exception.FloatingRateNotFoundException;
@@ -57,6 +58,16 @@ public class FloatingRatesReadPlatformServiceImpl implements
 			final String sql = "select " + rateMapper.schema() 
 					+ " where rate.id = ?";
 			return this.jdbcTemplate.queryForObject(sql, rateMapper, new Object[] { floatingRateId});
+		} catch (final EmptyResultDataAccessException e){
+			throw new FloatingRateNotFoundException(floatingRateId);
+		}
+	}
+	
+	@Override
+	public List<InterestRatePeriodData> retrieveInterestRatePeriods(final Long floatingRateId){
+		try{
+			FloatingInterestRatePeriodRowMapper mapper = new FloatingInterestRatePeriodRowMapper();
+			return this.jdbcTemplate.query(mapper.schema(), mapper, new Object[] { floatingRateId});
 		} catch (final EmptyResultDataAccessException e){
 			throw new FloatingRateNotFoundException(floatingRateId);
 		}
@@ -164,6 +175,59 @@ public class FloatingRatesReadPlatformServiceImpl implements
 			final boolean isBaseLendingRate = rs.getBoolean("isBaseLendingRate");
 			return new FloatingRateData(id, name, isBaseLendingRate, true, 
 					null, null, null, null, null, null);
+		}
+		
+		public String schema(){
+			return sqlQuery.toString();
+		}
+	}
+
+	private final class FloatingInterestRatePeriodRowMapper implements RowMapper<InterestRatePeriodData> {
+		
+		private final StringBuilder sqlQuery = new StringBuilder()
+			.append("select ")
+			.append("    linkedrateperiods.from_date as linkedrateperiods_from_date, ")
+			.append("    linkedrateperiods.interest_rate as linkedrateperiods_interest_rate, ")
+			.append("    linkedrateperiods.is_differential_to_base_lending_rate as linkedrateperiods_is_differential_to_base_lending_rate, ")
+			.append("    baserate.from_date as baserate_from_date, ")
+			.append("    baserate.interest_rate as baserate_interest_rate ")
+			.append("from m_floating_rates as linkedrate ") 
+			.append("left join m_floating_rates_periods as linkedrateperiods on (linkedrate.id = linkedrateperiods.floating_rates_id and linkedrateperiods.is_active = 1) ")
+			.append("left join ( ")
+			.append("    select blr.name, ")
+			.append("    blr.is_base_lending_rate, ")
+			.append("    blr.is_active, ")
+			.append("    blrperiods.from_date, ")
+			.append("    blrperiods.interest_rate ")
+			.append("    from m_floating_rates as blr ")
+			.append("    left join m_floating_rates_periods as blrperiods on (blr.id = blrperiods.floating_rates_id and blrperiods.is_active = 1) ")
+			.append("    where blr.is_base_lending_rate = 1 and blr.is_active = 1 ")
+			.append(") as baserate on (linkedrateperiods.is_differential_to_base_lending_rate = 1 and linkedrate.is_base_lending_rate = 0) ")
+			.append("where (baserate.from_date is null ")
+			.append("    or baserate.from_date = (select MAX(b.from_date) ")
+			.append("        from (select blr.name, ")
+			.append("            blr.is_base_lending_rate, ")
+			.append("            blr.is_active, ")
+			.append("            blrperiods.from_date, ")
+			.append("            blrperiods.interest_rate ")
+			.append("            from m_floating_rates as blr ")
+			.append("            left join m_floating_rates_periods as blrperiods on (blr.id = blrperiods.floating_rates_id and blrperiods.is_active = 1) ")
+			.append("            where blr.is_base_lending_rate = 1 and blr.is_active = 1 ")
+			.append("        ) as b ")
+			.append("        where b.from_date <= linkedrateperiods.from_date)) ")
+			.append("and linkedrate.id = ? ")
+			.append("order by linkedratePeriods_from_date desc ");
+
+		@Override
+		public InterestRatePeriodData mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum)
+				throws SQLException {
+			final Date fromDate = rs.getDate("linkedrateperiods_from_date");
+			final BigDecimal interestRate = rs.getBigDecimal("linkedrateperiods_interest_rate");
+			final boolean isDifferentialToBLR = rs.getBoolean("linkedrateperiods_is_differential_to_base_lending_rate");
+			final Date blrFromDate = rs.getDate("baserate_from_date");
+			final BigDecimal blrInterestRate = rs.getBigDecimal("baserate_interest_rate");
+			
+			return new InterestRatePeriodData(fromDate, interestRate, isDifferentialToBLR, blrFromDate, blrInterestRate);
 		}
 		
 		public String schema(){
