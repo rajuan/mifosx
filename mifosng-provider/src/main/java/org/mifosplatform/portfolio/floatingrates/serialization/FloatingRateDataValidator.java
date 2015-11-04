@@ -108,9 +108,9 @@ public class FloatingRateDataValidator {
         	            	baseDataValidator.reset().parameter("isDifferentialToBaseLendingRate").trueOrFalseRequired(false);
     	            	} else if(isDifferentialToBaseLendingRate){
     	            		FloatingRate baseLendingRate = this.floatingRateRepository.retrieveBaseLendingRate();
-    	            		if(baseLendingRate != null){
+    	            		if(baseLendingRate == null){
     	            			baseDataValidator.reset().parameter("isDifferentialToBaseLendingRate").value(isDifferentialToBaseLendingRate)
-    	            				.failWithCode("isDifferentialToBaseLendingRate.no.baselending.rate.defined", "Base Lending Rate doesn't exists");
+    	            				.failWithCode("no.baselending.rate.defined", "Base Lending Rate doesn't exists");
     	            		}
 
     	            	}

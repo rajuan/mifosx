@@ -52,8 +52,8 @@ public final class LoanApplicationCommandFromApiJsonHelper {
             "interestRatePerPeriod",
             "amortizationType",
             "interestType",
-            "isFloatingInterestRate", 
-            "interestRateDifferential", 
+            LoanApiConstants.isFloatingInterestRate, 
+            LoanApiConstants.interestRateDifferential, 
             "interestCalculationPeriodType",
             "interestRateFrequencyType",
             "expectedDisbursementDate",
@@ -220,18 +220,18 @@ public final class LoanApplicationCommandFromApiJsonHelper {
                 baseDataValidator.reset().parameter("interestRatePerPeriod").failWithCode("not.supported.loanproduct.linked.to.floating.rate", 
                 		"interestRatePerPeriod param is not supported, selected Loan Product is linked with floating interest rate.");
             }
-            final String isFloatingInterestRateParameterName = "isFloatingInterestRate";
-            if(this.fromApiJsonHelper.parameterExists(isFloatingInterestRateParameterName, element)){
+
+            if(this.fromApiJsonHelper.parameterExists(LoanApiConstants.isFloatingInterestRate, element)){
                 final Boolean isFloatingInterestRate = this.fromApiJsonHelper.extractBooleanNamed(
-                        isFloatingInterestRateParameterName, element);
-                baseDataValidator.reset().parameter(isFloatingInterestRateParameterName)
+                        LoanApiConstants.isFloatingInterestRate, element);
+                baseDataValidator.reset().parameter(LoanApiConstants.isFloatingInterestRate)
                 				.value(isFloatingInterestRate).notNull().trueOrFalseRequired(false);
                 if(isFloatingInterestRate != null && isFloatingInterestRate && !loanProduct.getFloatingRates().isFloatingInterestRateCalculationAllowed()){
-                        baseDataValidator.reset().parameter("isFloatingInterestRate").failWithCode("true.not.supported.for.selected.loanproduct", 
+                        baseDataValidator.reset().parameter(LoanApiConstants.isFloatingInterestRate).failWithCode("true.not.supported.for.selected.loanproduct", 
                         		"isFloatingInterestRate value of true not supported for selected Loan Product.");
                 }
             }else{
-            	baseDataValidator.reset().parameter(isFloatingInterestRateParameterName).trueOrFalseRequired(false);
+            	baseDataValidator.reset().parameter(LoanApiConstants.isFloatingInterestRate).trueOrFalseRequired(false);
             }
 
             if(interestType != null && interestType == InterestMethod.FLAT.getValue()){
@@ -239,7 +239,7 @@ public final class LoanApplicationCommandFromApiJsonHelper {
                 		"interestType should be DECLINING_BALANCE for selected Loan Product as it is linked to floating rates.");
             }
 
-            final String interestRateDifferentialParameterName = "interestRateDifferential";
+            final String interestRateDifferentialParameterName = LoanApiConstants.interestRateDifferential;
             final BigDecimal interestRateDifferential = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(
                     interestRateDifferentialParameterName, element);
             baseDataValidator.reset().parameter(interestRateDifferentialParameterName).value(interestRateDifferential).notNull()
@@ -249,12 +249,12 @@ public final class LoanApplicationCommandFromApiJsonHelper {
             
         }else{
         	
-            if(this.fromApiJsonHelper.parameterExists("isFloatingInterestRate", element)){
-                baseDataValidator.reset().parameter("isFloatingInterestRate").failWithCode("not.supported.loanproduct.not.linked.to.floating.rate", 
+            if(this.fromApiJsonHelper.parameterExists(LoanApiConstants.isFloatingInterestRate, element)){
+                baseDataValidator.reset().parameter(LoanApiConstants.isFloatingInterestRate).failWithCode("not.supported.loanproduct.not.linked.to.floating.rate", 
                 		"isFloatingInterestRate param is not supported, selected Loan Product is not linked with floating interest rate.");
             }
-            if(this.fromApiJsonHelper.parameterExists("interestRateDifferential", element)){
-                baseDataValidator.reset().parameter("interestRateDifferential").failWithCode("not.supported.loanproduct.not.linked.to.floating.rate", 
+            if(this.fromApiJsonHelper.parameterExists(LoanApiConstants.interestRateDifferential, element)){
+                baseDataValidator.reset().parameter(LoanApiConstants.interestRateDifferential).failWithCode("not.supported.loanproduct.not.linked.to.floating.rate", 
                 		"interestRateDifferential param is not supported, selected Loan Product is not linked with floating interest rate.");
             }
 
@@ -578,18 +578,18 @@ public final class LoanApplicationCommandFromApiJsonHelper {
                 baseDataValidator.reset().parameter("interestRatePerPeriod").failWithCode("not.supported.loanproduct.linked.to.floating.rate", 
                 		"interestRatePerPeriod param is not supported, selected Loan Product is linked with floating interest rate.");
             }
-            final String isFloatingInterestRateParameterName = "isFloatingInterestRate";
-            final Boolean isFloatingInterestRate = this.fromApiJsonHelper.parameterExists(isFloatingInterestRateParameterName, element)
-            		? this.fromApiJsonHelper.extractBooleanNamed(isFloatingInterestRateParameterName, element)
+
+            final Boolean isFloatingInterestRate = this.fromApiJsonHelper.parameterExists(LoanApiConstants.isFloatingInterestRate, element)
+            		? this.fromApiJsonHelper.extractBooleanNamed(LoanApiConstants.isFloatingInterestRate, element)
             		: existingLoanApplication.getIsFloatingInterestRate();
             if(isFloatingInterestRate != null){
                 if(isFloatingInterestRate 
                 		&& !loanProduct.getFloatingRates().isFloatingInterestRateCalculationAllowed()){
-                        baseDataValidator.reset().parameter("isFloatingInterestRate").failWithCode("true.not.supported.for.selected.loanproduct", 
+                        baseDataValidator.reset().parameter(LoanApiConstants.isFloatingInterestRate).failWithCode("true.not.supported.for.selected.loanproduct", 
                         		"isFloatingInterestRate value of true not supported for selected Loan Product.");
                 }
             }else{
-            	baseDataValidator.reset().parameter(isFloatingInterestRateParameterName).trueOrFalseRequired(false);
+            	baseDataValidator.reset().parameter(LoanApiConstants.isFloatingInterestRate).trueOrFalseRequired(false);
             }
 
             if(interestType == null){
@@ -600,7 +600,7 @@ public final class LoanApplicationCommandFromApiJsonHelper {
                 		"interestType should be DECLINING_BALANCE for selected Loan Product as it is linked to floating rates.");
             }
 
-            final String interestRateDifferentialParameterName = "interestRateDifferential";
+            final String interestRateDifferentialParameterName = LoanApiConstants.interestRateDifferential;
             BigDecimal interestRateDifferential = existingLoanApplication.getInterestRateDifferential();
             if(this.fromApiJsonHelper.parameterExists(interestRateDifferentialParameterName, element)){
             	interestRateDifferential = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(
@@ -613,12 +613,12 @@ public final class LoanApplicationCommandFromApiJsonHelper {
             
         }else{
         	
-            if(this.fromApiJsonHelper.parameterExists("isFloatingInterestRate", element)){
-                baseDataValidator.reset().parameter("isFloatingInterestRate").failWithCode("not.supported.loanproduct.not.linked.to.floating.rate", 
+            if(this.fromApiJsonHelper.parameterExists(LoanApiConstants.isFloatingInterestRate, element)){
+                baseDataValidator.reset().parameter(LoanApiConstants.isFloatingInterestRate).failWithCode("not.supported.loanproduct.not.linked.to.floating.rate", 
                 		"isFloatingInterestRate param is not supported, selected Loan Product is not linked with floating interest rate.");
             }
-            if(this.fromApiJsonHelper.parameterExists("interestRateDifferential", element)){
-                baseDataValidator.reset().parameter("interestRateDifferential").failWithCode("not.supported.loanproduct.not.linked.to.floating.rate", 
+            if(this.fromApiJsonHelper.parameterExists(LoanApiConstants.interestRateDifferential, element)){
+                baseDataValidator.reset().parameter(LoanApiConstants.interestRateDifferential).failWithCode("not.supported.loanproduct.not.linked.to.floating.rate", 
                 		"interestRateDifferential param is not supported, selected Loan Product is not linked with floating interest rate.");
             }
 
