@@ -94,22 +94,30 @@ public class FloatingRateDataValidator {
         			this.fromApiJsonHelper.checkForUnsupportedParameters(ratePeriod.getAsJsonObject(), this.supportedParametersForFloatingRatePeriods);
 
         			final LocalDate fromDate = this.fromApiJsonHelper.extractLocalDateNamed("fromDate", ratePeriod);
-        	        baseDataValidator.reset().parameter("fromDate").value(fromDate).notBlank().validateDateAfter(DateUtils.getLocalDateOfTenant().plusDays(1));
+        	        baseDataValidator.reset().parameter("fromDate")
+        	        	.parameterAtIndexArray("fromDate", i+1)
+        	        	.value(fromDate).notBlank().validateDateAfter(DateUtils.getLocalDateOfTenant().plusDays(1));
         	        if(fromDate != null){
         	        	fromDates.add(fromDate);
         	        }
         	        
     	            final BigDecimal interestRatePerPeriod = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed("interestRate", ratePeriod);
-    	            baseDataValidator.reset().parameter("interestRate").value(interestRatePerPeriod).notNull().zeroOrPositiveAmount();
+    	            baseDataValidator.reset().parameter("interestRate")
+    	            	.parameterAtIndexArray("interestRate", i+1)
+    	            	.value(interestRatePerPeriod).notNull().zeroOrPositiveAmount();
 
     	            if(this.fromApiJsonHelper.parameterExists("isDifferentialToBaseLendingRate", ratePeriod)){
     	            	final Boolean isDifferentialToBaseLendingRate = this.fromApiJsonHelper.extractBooleanNamed("isDifferentialToBaseLendingRate", ratePeriod);
     	            	if(isDifferentialToBaseLendingRate == null){
-        	            	baseDataValidator.reset().parameter("isDifferentialToBaseLendingRate").trueOrFalseRequired(false);
+        	            	baseDataValidator.reset().parameter("isDifferentialToBaseLendingRate")
+        	            				.parameterAtIndexArray("isDifferentialToBaseLendingRate", i+1)
+        	            				.trueOrFalseRequired(false);
     	            	} else if(isDifferentialToBaseLendingRate){
     	            		FloatingRate baseLendingRate = this.floatingRateRepository.retrieveBaseLendingRate();
     	            		if(baseLendingRate == null){
-    	            			baseDataValidator.reset().parameter("isDifferentialToBaseLendingRate").value(isDifferentialToBaseLendingRate)
+    	            			baseDataValidator.reset().parameter("isDifferentialToBaseLendingRate")
+    	            				.parameterAtIndexArray("isDifferentialToBaseLendingRate", i+1)
+    	            				.value(isDifferentialToBaseLendingRate)
     	            				.failWithCode("no.baselending.rate.defined", "Base Lending Rate doesn't exists");
     	            		}
 
