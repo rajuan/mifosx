@@ -216,8 +216,8 @@ public class LoanAssembler {
 
         final LoanProductRelatedDetail loanProductRelatedDetail = this.loanScheduleAssembler.assembleLoanProductRelatedDetail(element);
         
-        final BigDecimal interestRateDifferential = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed("interestRateDifferential", element);
-        final Boolean isFloatingInterestRate = this.fromApiJsonHelper.extractBooleanNamed("isFloatingInterestRate", element);
+        final BigDecimal interestRateDifferential = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(LoanApiConstants.interestRateDifferentialParameterName, element);
+        final Boolean isFloatingInterestRate = this.fromApiJsonHelper.extractBooleanNamed(LoanApiConstants.isFloatingInterestRateParameterName, element);
 
         final String loanTypeParameterName = "loanType";
         final String loanTypeStr = this.fromApiJsonHelper.extractStringNamed(loanTypeParameterName, element);

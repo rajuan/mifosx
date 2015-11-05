@@ -1,0 +1,54 @@
+package org.mifosplatform.portfolio.floatingrates.data;
+
+import java.math.BigDecimal;
+import java.util.Collection;
+
+import org.joda.time.LocalDate;
+
+public class FloatingRateDTO {
+
+    private final boolean isFloatingInterestRate;
+    private final LocalDate startDate;
+    private BigDecimal interestRateDiff;
+    private final Collection<FloatingRatePeriodData> baseLendingRatePeriods;
+
+    public FloatingRateDTO(final boolean isFloatingInterestRate, final LocalDate startDate, final BigDecimal interestRateDiff,
+            final Collection<FloatingRatePeriodData> baseLendingRatePeriods) {
+        this.isFloatingInterestRate = isFloatingInterestRate;
+        this.startDate = startDate;
+        this.interestRateDiff = interestRateDiff;
+        this.baseLendingRatePeriods = baseLendingRatePeriods;
+    }
+
+    public BigDecimal fetchBaseRate(LocalDate date) {
+        BigDecimal rate = null;
+        for (FloatingRatePeriodData periodData : this.baseLendingRatePeriods) {
+            if (date.isBefore(new LocalDate(periodData.getFromDate()))) {
+                break;
+            }
+            rate = periodData.getInterestRate();
+        }
+        return rate;
+    }
+
+    public void addInterestRateDiff(final BigDecimal diff) {
+        this.interestRateDiff = this.interestRateDiff.add(diff);
+    }
+
+    public boolean isFloatingInterestRate() {
+        return this.isFloatingInterestRate;
+    }
+
+    public LocalDate getStartDate() {
+        return this.startDate;
+    }
+
+    public BigDecimal getInterestRateDiff() {
+        return this.interestRateDiff;
+    }
+
+    public Collection<FloatingRatePeriodData> getBaseLendingRatePeriods() {
+        return this.baseLendingRatePeriods;
+    }
+
+}

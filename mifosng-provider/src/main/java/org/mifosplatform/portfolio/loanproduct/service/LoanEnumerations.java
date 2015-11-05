@@ -503,6 +503,10 @@ public class LoanEnumerations {
                 optionData = new EnumOptionData(LoanTermVariationType.EMI_AMOUNT.getValue().longValue(),
                         LoanTermVariationType.EMI_AMOUNT.getCode(), "emiAmount");
             break;
+            case INTEREST_RATE:
+                optionData = new EnumOptionData(LoanTermVariationType.INTEREST_RATE.getValue().longValue(),
+                        LoanTermVariationType.INTEREST_RATE.getCode(), "interestRate");
+                break;
             default:
                 optionData = new EnumOptionData(LoanTermVariationType.INVALID.getValue().longValue(),
                         LoanTermVariationType.INVALID.getCode(), "Invalid");
