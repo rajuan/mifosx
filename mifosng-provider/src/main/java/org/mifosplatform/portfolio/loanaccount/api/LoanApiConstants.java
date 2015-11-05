@@ -34,6 +34,10 @@ public interface LoanApiConstants {
     public static final String interestRecalculationCompoundingMethodParameterName = "interestRecalculationCompoundingMethod";
     public static final String rescheduleStrategyMethodParameterName = "rescheduleStrategyMethod";
     
+    // Floating interest rate related
+    public static final String interestRateDifferentialParameterName = "interestRateDifferential";
+    public static final String isFloatingInterestRateParameterName = "isFloatingInterestRate";
+    
     // Error codes
     public static final String LOAN_CHARGE_CAN_NOT_BE_ADDED_WITH_INTEREST_CALCULATION_TYPE= "loancharge.with.calculation.type.interest.not.allowed";
     public static final String LOAN_CHARGE_CAN_NOT_BE_ADDED_WITH_PRINCIPAL_CALCULATION_TYPE= "loancharge.with.calculation.type.principal.not.allowed";
@@ -49,4 +53,6 @@ public interface LoanApiConstants {
 	public static final String interestRateDifferential = "interestRateDifferential";
 
 
+    
+    
 }
