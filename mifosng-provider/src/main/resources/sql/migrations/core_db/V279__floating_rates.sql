@@ -47,8 +47,8 @@ CREATE TABLE `m_product_loan_floating_rates` (
 );
 
 ALTER TABLE `m_loan`
-ADD COLUMN `is_floating_interest_rate` BIT(1) NOT NULL DEFAULT 0 AFTER `arrearstolerance_amount`,
-ADD COLUMN `interest_rate_differential` DECIMAL(19,6) NOT NULL DEFAULT 0 AFTER `is_floating_interest_rate`,
+ADD COLUMN `is_floating_interest_rate` BIT(1) NULL DEFAULT 0 AFTER `arrearstolerance_amount`,
+ADD COLUMN `interest_rate_differential` DECIMAL(19,6) NULL DEFAULT 0 AFTER `is_floating_interest_rate`,
 MODIFY COLUMN `nominal_interest_rate_per_period` DECIMAL(19,6) NULL DEFAULT NULL,
 MODIFY COLUMN `interest_period_frequency_enum` SMALLINT(5) NULL DEFAULT NULL,
 MODIFY COLUMN `annual_nominal_interest_rate` DECIMAL(19,6) NULL DEFAULT NULL;

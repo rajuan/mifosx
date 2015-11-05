@@ -224,8 +224,6 @@ public final class LoanApplicationCommandFromApiJsonHelper {
             if(this.fromApiJsonHelper.parameterExists(LoanApiConstants.isFloatingInterestRate, element)){
                 final Boolean isFloatingInterestRate = this.fromApiJsonHelper.extractBooleanNamed(
                         LoanApiConstants.isFloatingInterestRate, element);
-                baseDataValidator.reset().parameter(LoanApiConstants.isFloatingInterestRate)
-                				.value(isFloatingInterestRate).notNull().trueOrFalseRequired(false);
                 if(isFloatingInterestRate != null && isFloatingInterestRate && !loanProduct.getFloatingRates().isFloatingInterestRateCalculationAllowed()){
                         baseDataValidator.reset().parameter(LoanApiConstants.isFloatingInterestRate).failWithCode("true.not.supported.for.selected.loanproduct", 
                         		"isFloatingInterestRate value of true not supported for selected Loan Product.");
@@ -579,9 +577,11 @@ public final class LoanApplicationCommandFromApiJsonHelper {
                 		"interestRatePerPeriod param is not supported, selected Loan Product is linked with floating interest rate.");
             }
 
-            final Boolean isFloatingInterestRate = this.fromApiJsonHelper.parameterExists(LoanApiConstants.isFloatingInterestRate, element)
-            		? this.fromApiJsonHelper.extractBooleanNamed(LoanApiConstants.isFloatingInterestRate, element)
-            		: existingLoanApplication.getIsFloatingInterestRate();
+            Boolean isFloatingInterestRate = existingLoanApplication.getIsFloatingInterestRate();
+            if(this.fromApiJsonHelper.parameterExists(LoanApiConstants.isFloatingInterestRate, element)){
+            	isFloatingInterestRate = this.fromApiJsonHelper.extractBooleanNamed(LoanApiConstants.isFloatingInterestRate, element);
+                atLeastOneParameterPassedForUpdate = true;
+            }
             if(isFloatingInterestRate != null){
                 if(isFloatingInterestRate 
                 		&& !loanProduct.getFloatingRates().isFloatingInterestRateCalculationAllowed()){
@@ -605,6 +605,7 @@ public final class LoanApplicationCommandFromApiJsonHelper {
             if(this.fromApiJsonHelper.parameterExists(interestRateDifferentialParameterName, element)){
             	interestRateDifferential = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(
                         interestRateDifferentialParameterName, element);
+                atLeastOneParameterPassedForUpdate = true;
             }
             baseDataValidator.reset().parameter(interestRateDifferentialParameterName).value(interestRateDifferential).notNull()
                     .zeroOrPositiveAmount()
@@ -627,6 +628,7 @@ public final class LoanApplicationCommandFromApiJsonHelper {
             if(this.fromApiJsonHelper.parameterExists(interestRatePerPeriodParameterName, element)){
                 this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(
                         interestRatePerPeriodParameterName, element);
+                atLeastOneParameterPassedForUpdate = true;
             }
             baseDataValidator.reset().parameter(interestRatePerPeriodParameterName).value(interestRatePerPeriod).notNull()
                     .zeroOrPositiveAmount();

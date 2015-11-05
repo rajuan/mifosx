@@ -572,4 +572,10 @@ public class LoanProductRelatedDetail implements LoanProductMinimumRepaymentSche
         return this.inArrearsTolerance;
     }
 
+	public void updateForFloatingInterestRates() {
+		this.nominalInterestRatePerPeriod = null;
+		this.interestPeriodFrequencyType = PeriodFrequencyType.INVALID;
+		this.annualNominalInterestRate = null;		
+	}
+
 }

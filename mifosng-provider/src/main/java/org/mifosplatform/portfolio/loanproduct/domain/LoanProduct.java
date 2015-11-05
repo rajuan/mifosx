@@ -658,7 +658,7 @@ public class LoanProduct extends AbstractPersistable<Long> {
 
         final Map<String, Object> actualChanges = this.loanProductRelatedDetail.update(command, aprCalculator);
         actualChanges.putAll(loanProductMinMaxConstraints().update(command));
-        
+
         final String isLinkedToFloatingInterestRates = "isLinkedToFloatingInterestRates";
         if(command.isChangeInBooleanParameterNamed(isLinkedToFloatingInterestRates, this.isLinkedToFloatingInterestRate)){
         	final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(isLinkedToFloatingInterestRates);
@@ -668,6 +668,10 @@ public class LoanProduct extends AbstractPersistable<Long> {
 
         if(this.isLinkedToFloatingInterestRate){
             actualChanges.putAll(loanProductFloatingRates().update(command, floatingRate));
+            this.loanProductRelatedDetail.updateForFloatingInterestRates();
+            this.loanProductMinMaxConstraints.updateForFloatingInterestRates();
+        }else{
+        	this.floatingRates = null;
         }
 
         final String accountingTypeParamName = "accountingRule";
@@ -958,7 +962,7 @@ public class LoanProduct extends AbstractPersistable<Long> {
 
 	private LoanProductFloatingRates loanProductFloatingRates() {
         this.floatingRates = this.floatingRates == null 
-        		? new LoanProductFloatingRates(null, null, null, null, null, null, null) 
+        		? new LoanProductFloatingRates(null, this, null, null, null, null, false) 
         		: this.floatingRates;
         return this.floatingRates;
 	}
