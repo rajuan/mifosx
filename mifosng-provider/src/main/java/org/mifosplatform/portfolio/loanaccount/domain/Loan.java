@@ -5622,4 +5622,13 @@ public class Loan extends AbstractPersistable<Long> {
     public BigDecimal getInterestRateDifferential() {
         return this.interestRateDifferential;
     }
+
+	public void setIsFloatingInterestRate(Boolean isFloatingInterestRate) {
+		this.isFloatingInterestRate = isFloatingInterestRate;
+	}
+
+	public void setInterestRateDifferential(BigDecimal interestRateDifferential) {
+		this.interestRateDifferential = interestRateDifferential;
+	}
+    
 }

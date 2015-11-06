@@ -587,6 +587,12 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
                     this.loanProductCommandFromApiJsonDeserializer.validateMinMaxConstraints(command.parsedJson(), baseDataValidator,
                     		newLoanProduct);
                 }
+                if(newLoanProduct.isLinkedToFloatingInterestRate()){
+                	existingLoanApplication.getLoanProductRelatedDetail().updateForFloatingInterestRates();
+                }else{
+                	existingLoanApplication.setInterestRateDifferential(null);
+                	existingLoanApplication.setIsFloatingInterestRate(null);
+                }
                 if (!dataValidationErrors.isEmpty()) { throw new PlatformApiDataValidationException(dataValidationErrors); }
             }
 
