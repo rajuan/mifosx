@@ -1589,6 +1589,10 @@ public class SavingsAccount extends AbstractPersistable<Long> {
         return this.nominalAnnualInterestRate;
     }
 
+    public BigDecimal getNominalAnnualInterestRateOverdraft() {
+        return this.nominalAnnualInterestRateOverdraft;
+    }
+
     public Map<String, Object> approveApplication(final AppUser currentUser, final JsonCommand command, final LocalDate tenantsTodayDate) {
 
         final Map<String, Object> actualChanges = new LinkedHashMap<>();

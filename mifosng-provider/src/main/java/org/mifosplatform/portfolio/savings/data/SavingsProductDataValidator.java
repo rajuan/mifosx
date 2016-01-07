@@ -540,13 +540,13 @@ public class SavingsProductDataValidator {
         }
 
         if (this.fromApiJsonHelper.parameterExists(nominalAnnualInterestRateOverdraftParamName, element)) {
-            final BigDecimal overdraftLimit = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(nominalAnnualInterestRateOverdraftParamName, element);
-            baseDataValidator.reset().parameter(nominalAnnualInterestRateOverdraftParamName).value(overdraftLimit).ignoreIfNull().zeroOrPositiveAmount();
+            final BigDecimal nominalAnnualInterestRateOverdraft = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(nominalAnnualInterestRateOverdraftParamName, element);
+            baseDataValidator.reset().parameter(nominalAnnualInterestRateOverdraftParamName).value(nominalAnnualInterestRateOverdraft).ignoreIfNull().zeroOrPositiveAmount();
         }
 
         if (this.fromApiJsonHelper.parameterExists(minOverdraftForInterestCalculationParamName, element)) {
-            final BigDecimal overdraftLimit = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(minOverdraftForInterestCalculationParamName, element);
-            baseDataValidator.reset().parameter(minOverdraftForInterestCalculationParamName).value(overdraftLimit).ignoreIfNull().zeroOrPositiveAmount();
+            final BigDecimal minOverdraftForInterestCalculation = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(minOverdraftForInterestCalculationParamName, element);
+            baseDataValidator.reset().parameter(minOverdraftForInterestCalculationParamName).value(minOverdraftForInterestCalculation).ignoreIfNull().zeroOrPositiveAmount();
         }
 
     }

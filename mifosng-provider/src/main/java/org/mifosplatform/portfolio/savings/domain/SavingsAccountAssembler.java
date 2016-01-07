@@ -236,7 +236,7 @@ public class SavingsAccountAssembler {
         if (command.parameterExists(minOverdraftForInterestCalculationParamName)) {
         	minOverdraftForInterestCalculation = command.bigDecimalValueOfParameterNamedDefaultToNullIfZero(minOverdraftForInterestCalculationParamName);
         } else {
-        	minOverdraftForInterestCalculation = product.overdraftLimit();
+        	minOverdraftForInterestCalculation = product.minOverdraftForInterestCalculation();
         }
 
         boolean enforceMinRequiredBalance = false;
